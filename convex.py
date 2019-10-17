@@ -9,9 +9,13 @@ import numpy as np
 from scipy.ndimage.filters import gaussian_filter
 from scipy.spatial import ConvexHull
 import matplotlib.pyplot as plt
+import os
 
-from IPython import get_ipython
-get_ipython().run_line_magic('matplotlib', 'inline')
+try:
+    from IPython import get_ipython
+    get_ipython().run_line_magic('matplotlib', 'inline')
+except:
+    pass
 
 np.seterr(all='ignore')
 
@@ -133,6 +137,6 @@ if __name__ == '__main__':
         norm = plt.Normalize(np.min(ims), np.max(ims))
         cmap = plt.cm.gray
         image = cmap(norm(im))
-        plt.imsave("test/Test_{}.png".format(nr), image)
+        plt.imsave(os.path.join(os.pardir, "project_storage", "Test", "Test_{}.png".format(nr)), image)
         ax = fig.add_subplot(nr_rows, nr_cols, nr+1)
         ax.imshow(im, cmap='gray',norm=norm)
