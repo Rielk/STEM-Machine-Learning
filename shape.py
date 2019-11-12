@@ -96,11 +96,12 @@ class Shape():
             t = gaussian_filter(t, sigma=gauss)
         if noise:
             t += np.random.normal(0, noise*t)
-        return t, np.array(xs)
+        return t
         
     
 if __name__ == '__main__':
-    shape = Shape(np.random.normal(1,.1), 120, sig=.05, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
+    
+    shape = Shape(np.random.normal(1,.1), 120, sig=.03, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
     plt.close("all")
     fig, axs = plt.subplots(2,2)
     ax = axs[0, 0]
@@ -120,13 +121,18 @@ if __name__ == '__main__':
 #    shape.rotate_coords(3*np.pi/2)
 #    shape.plot(ax, "g")
     
-    t, xs = shape.project(100, 0.0, about=(.0,.0), lower=-1.5, upper=1.5, background=20, noise=0.001, gauss=0.5)
+    n = 100
+    upper = 1.5
+    lower = -1.5
+    xs = [i*(upper-lower)/n+(lower-upper)/2 for i in range(n)]
+    
+    t = shape.project(n, 0.0, about=(.0,.0), lower=lower, upper=upper, background=20, noise=0.001, gauss=0.5)
     ax = axs[1,0]
     ax.plot(xs, t)
-    ax.set(xlim=(-1.5,1.5))
+    ax.set(xlim=(lower,upper))
     
-    t, xs = shape.project(100,  np.pi/4, about=(.0,.0), lower=-1.5, upper=1.5, background=20, noise=0.001, gauss=0.5)
+    t = shape.project(n,  np.pi/4, about=(.0,.0), lower=lower, upper=upper, background=20, noise=0.001, gauss=0.5)
     ax = axs[1,1]
     ax.plot(xs, t, "k")
-    ax.set(xlim=(-1.5,1.5))
+    ax.set(xlim=(lower,upper))
     
