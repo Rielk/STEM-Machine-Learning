@@ -1,1 +1,4 @@
 .spyproject/
+*.pdf
+*.png
+*.docx
