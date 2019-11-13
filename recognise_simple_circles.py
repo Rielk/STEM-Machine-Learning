@@ -23,7 +23,7 @@ outputs = Dense(2, activation="sigmoid", name="output")(x)
 model = Model(inputs=inputs, outputs=outputs)
 
 #Compile model
-model.compile(optimizer="sgd", loss='categorical_crossentropy', metrics=['accuracy'])
+model.compile(optimizer="sgd", loss="mean_squared_error", metrics=['accuracy'])
 
 data_needed = False
 #Produce learning data
@@ -57,6 +57,7 @@ if data_needed:
     _ = None
     print("Finished the training data")
 
+v_data_needed = False
 #Produce validation data
 v_params = {"data_count_h":10000,
           "data_count_s":10000,
@@ -82,12 +83,12 @@ v_params = {"data_count_h":10000,
           "noise":.0011,
           }
 
-if data_needed:
+if v_data_needed:
     _, v_data, v_labels = data_gen(v_params)
     v_data = v_data[:,0]
 
 #Then fit the data
-history = model.fit(data, labels, epochs=20, validation_data=(v_data,v_labels), shuffle=True)
+history = model.fit(data, labels, epochs=50, validation_data=(v_data,v_labels), shuffle=True)
 
 # Plot training & validation accuracy values
 plt.plot(history.history['accuracy'])
@@ -110,3 +111,9 @@ plt.show()
 print()
 print("Prediction with hole:\t",model.predict(v_data)[0])
 print("Prediction without hole:\t",model.predict(v_data)[-1])
+
+fig, axs = plt.subplots(2,2)
+_[0].plot(axs[0,0])
+_[1].plot(axs[1,0])
+_[-1].plot(axs[0,1])
+_[-2].plot(axs[1,1])
