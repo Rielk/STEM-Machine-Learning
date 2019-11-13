@@ -97,10 +97,10 @@ def data_gen(params):
                         num_classes=2)
     return shapes, projections, labels
 
-def default_params():
+def default_params(n=200):
     return {
-            "data_count_h":100,
-            "data_count_s":100,
+            "data_count_h":n/2,
+            "data_count_s":n/2,
     
             "r":1.,    
             "sig_r":.1,
@@ -124,7 +124,7 @@ def default_params():
             }
 
 if __name__ == '__main__':
-    params = default_params()
+    params = default_params(60000)
     
     shapes, projections, labels = data_gen(params)
 
