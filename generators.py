@@ -97,8 +97,8 @@ def data_gen(params):
                         num_classes=2)
     return shapes, projections, labels
 
-if __name__ == '__main__':
-    params = {
+def default_params():
+    return {
             "data_count_h":100,
             "data_count_s":100,
     
@@ -122,6 +122,9 @@ if __name__ == '__main__':
             "gauss":.5,
             "noise":.001,
             }
+
+if __name__ == '__main__':
+    params = default_params()
     
     shapes, projections, labels = data_gen(params)
 
