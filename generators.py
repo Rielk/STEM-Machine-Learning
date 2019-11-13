@@ -141,4 +141,10 @@ if __name__ == '__main__':
     shapes[0].plot(axs[0,0])
     shapes[1].plot(axs[1,0])
     shapes[params["data_count_h"]].plot(axs[0,1])
-    shapes[params["data_count_h"]+1].plot(axs[1,1])    
+    shapes[params["data_count_h"]+1].plot(axs[1,1])
+    
+    plt.figure()
+    plt.plot(projections[0][0])
+    plt.figure()
+    plt.plot(projections[params["data_count_h"]][0])
+    
