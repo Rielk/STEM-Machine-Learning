@@ -92,7 +92,7 @@ class Shape():
         t = np.array([sum(a-b for a,b in zip(i[1::2],i[0::2])) for i in t])
         
         for hole in self.holes:
-            t -= hole.project(n+1, None, about, lower, upper)[0]
+            t -= hole.project(n+1, None, about, lower, upper)
         
         #Experimental Noise
         t += background
@@ -105,7 +105,7 @@ class Shape():
     
 if __name__ == '__main__':
     
-    shape = Shape(np.random.normal(1,.1), 120, sig=.03, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
+    shape = Shape(np.random.normal(1,.1), 120, sig=.03, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.5,.02))
     plt.close("all")
     fig, axs = plt.subplots(2,2)
     ax = axs[0, 0]
