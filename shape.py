@@ -31,6 +31,9 @@ class Shape():
         
     def add_hole(self, r, n, centre, sig):
         self.holes.append(Shape(r, n, centre, sig))
+        dr = np.sqrt(r**2+self._r**2)-self._r
+        self._r += dr
+        self.r += dr
     
     def rotate_coords(self, phi=0.0, about=None):
         """
@@ -63,6 +66,7 @@ class Shape():
         ax.plot(self.coords[:,0], self.coords[:,1], color)
         for hole in self.holes:
             hole.plot(ax, color)
+        ax.set_aspect('equal', 'box')
 #        r = self._r
 #        ax.set_xlim(-1.1*r,1.1*r)
 #        ax.set_ylim(-1.1*r,1.2*r)

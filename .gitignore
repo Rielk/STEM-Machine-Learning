@@ -1,4 +1,5 @@
 .spyproject/
+__pycache__/
 *.pdf
 *.png
 *.docx
