@@ -85,16 +85,21 @@ def data_gen(params):
     noise = params["noise"]
     
     #Shapes with holes
+    print("Generating shapes with holes")
     shapes = shapes_gen(shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,h_range,h_r, sig_hr)
     #Shapes without holes
+    print("Generating shapes without holes")
     shapes = np.append(shapes, shapes_gen(shape_count_s, r,sig_r,angle_count,centre,sig_c,sig))
     #Make the projections
+    print("Generating projections")
     projections = projection_gen(shapes, data_points, angles, sig_as, about, lower, upper, background, noise, gauss)
     #Produce the traget, 1 for holes, and 0 for solids
+    print("Generating labels")
     labels = keras.utils.to_categorical(
             np.array([[1] if x < shape_count_h else [0] 
                         for x in range(shape_count_h+shape_count_s)]),
                         num_classes=2)
+    print("Finished data generation")
     return shapes, projections, labels
 
 def default_params(n=200):
