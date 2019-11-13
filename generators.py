@@ -99,8 +99,8 @@ def data_gen(params):
 
 def default_params(n=200):
     return {
-            "data_count_h":n/2,
-            "data_count_s":n/2,
+            "data_count_h":int(n/2),
+            "data_count_s":int(n/2),
     
             "r":1.,    
             "sig_r":.1,
@@ -124,7 +124,7 @@ def default_params(n=200):
             }
 
 if __name__ == '__main__':
-    params = default_params(60000)
+    params = default_params()
     
     shapes, projections, labels = data_gen(params)
 
