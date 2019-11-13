@@ -55,7 +55,6 @@ if data_needed:
     data = data[:,0]
     #Clear the shapes from memory
     _ = None
-    print("Finished the training data")
 
 v_data_needed = False
 #Produce validation data
