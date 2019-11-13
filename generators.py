@@ -7,6 +7,7 @@ Created on Mon Nov 11 18:44:28 2019
 from shape import Shape
 import numpy as np
 import matplotlib.pyplot as plt
+import keras
 
 def shapes_gen(count, r, sig_r, n, centre, sig_c, sig, h_range=None, h_r=None, sig_hr=None, h_n=None):
     if h_range is not None:
@@ -89,12 +90,17 @@ def data_gen(params):
     shapes = np.append(shapes, shapes_gen(shape_count_s, r,sig_r,angle_count,centre,sig_c,sig))
     #Make the projections
     projections = projection_gen(shapes, data_points, angles, sig_as, about, lower, upper, background, noise, gauss)
-    return shapes, projections
+    #Produce the traget, 1 for holes, and 0 for solids
+    labels = keras.utils.to_categorical(
+            np.array([[1] if x < shape_count_h else [0] 
+                        for x in range(shape_count_h+shape_count_s)]),
+                        num_classes=2)
+    return shapes, projections, labels
 
 if __name__ == '__main__':
     params = {
-            "data_count_h":2,
-            "data_count_s":2,
+            "data_count_h":100,
+            "data_count_s":100,
     
             "r":1.,    
             "sig_r":.1,
@@ -117,11 +123,11 @@ if __name__ == '__main__':
             "noise":.001,
             }
     
-    shapes, projections = data_gen(params)
+    shapes, projections, labels = data_gen(params)
 
     plt.close("all")    
     fig, axs = plt.subplots(2,2)
     shapes[0].plot(axs[0,0])
     shapes[1].plot(axs[1,0])
-    shapes[2].plot(axs[0,1])
-    shapes[3].plot(axs[1,1])    
+    shapes[params["data_count_h"]].plot(axs[0,1])
+    shapes[params["data_count_h"]+1].plot(axs[1,1])    
