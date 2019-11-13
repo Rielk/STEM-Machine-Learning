@@ -98,13 +98,16 @@ def data_gen(params):
     return shapes, projections, labels
 
 def default_params(n=200):
+    """
+    Produces a 'reasonable' set of parameters in a dictionary
+    """
     return {
             "data_count_h":int(n/2),
             "data_count_s":int(n/2),
     
             "r":1.,    
             "sig_r":.1,
-            "angle_count":120,
+            "angle_count":90,
             "centre":(0,0),
             "sig_c":(.3,.3),
             "sig":.03,
