@@ -5,8 +5,11 @@ Created on Wed Nov 13 19:59:44 2019
 
 @author: william
 """
-from keras.layers import Input, Dense
+from keras.layers import Input, Dense, Dropout, BatchNormalization
 from keras.models import Model
+from keras.constraints import maxnorm
+#from keras.models import Sequential, Model, load_model
+#from keras.layers import Dense, Dropout, Flatten, BatchNormalization, Activation
 from generators import data_gen
 import matplotlib.pyplot as plt
 
@@ -14,13 +17,32 @@ plt.close("all")
 
 #Make the model
 inputs = Input(shape=(32,), name="inputs")
-x = Dense(32, activation="relu", name="dense1")(inputs) #Dense1
-x = Dense(32, activation="relu", name="dense2")(x) #Dense2
-x = Dense(32, activation="relu", name="dense3")(x) #Dense3
-x = Dense(16, activation="relu", name="dense4")(x) #Dense4
-x = Dense(16, activation="relu", name="dense5")(x) #Dense5
-outputs = Dense(2, activation="sigmoid", name="output")(x)
+x = Dense(32, activation="relu", name="dense1", kernel_constraint=maxnorm(3))(inputs) #Dense1 Kernal Constraint max norm 3
+#Activation Layer
+x = Dropout(0.2)(x)
+x = BatchNormalization()(x)
+#Batch Normalisation
+x = Dense(32, activation="relu", name="dense2", kernel_constraint=maxnorm(3))(x) #Dense2
+x = Dropout(0.2)(x)
+x = BatchNormalization()(x)
+#x = Dense(32, activation="relu", name="dense3", kernel_constraint=maxnorm(3))(x) #Dense3
+#x = Dropout(0.2)(x)
+#x = BatchNormalization()(x)
+#x = Dense(16, activation="relu", name="dense4", kernel_constraint=maxnorm(3))(x) #Dense4
+#x = Dropout(0.2)(x)
+#x = BatchNormalization()(x)
+x = Dense(16, activation="relu", name="dense5", kernel_constraint=maxnorm(3))(x) #Dense5
+
+outputs = Dense(2, activation="softmax", name="output")(x)
 model = Model(inputs=inputs, outputs=outputs)
+
+#model =  model = Sequential()
+#model.add(Dense(128, kernel_constraint=maxnorm(3)))
+#model.add(Activation('relu'))
+#model.add(Dropout(0.2))
+#model.add(BatchNormalization())
+#model.add(Dense(2))
+#model.add(Activation('softmax'))
 
 #Compile model
 model.compile(optimizer="sgd", loss="mean_squared_error", metrics=['accuracy'])
@@ -52,7 +74,7 @@ params = {"data_count_h":30000,
           }
 if data_needed:
     _, data, labels = data_gen(params)
-    data = data[:,0]
+    data = data[:,0]-20
     #Clear the shapes from memory
     _ = None
 
@@ -84,7 +106,7 @@ v_params = {"data_count_h":10000,
 
 if v_data_needed:
     _, v_data, v_labels = data_gen(v_params)
-    v_data = v_data[:,0]
+    v_data = v_data[:,0]-19
 
 #Then fit the data
 history = model.fit(data, labels, epochs=50, validation_data=(v_data,v_labels), shuffle=True)
