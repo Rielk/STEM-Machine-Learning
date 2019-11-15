@@ -17,20 +17,18 @@ plt.close("all")
 
 #Make the model
 inputs = Input(shape=(32,), name="inputs")
-x = Dense(32, activation="relu", name="dense1", kernel_constraint=maxnorm(3))(inputs) #Dense1 Kernal Constraint max norm 3
-#Activation Layer
+x = Dense(32, activation="relu", name="dense1", kernel_constraint=maxnorm(3))(inputs) #Dense1
 x = Dropout(0.2)(x)
 x = BatchNormalization()(x)
-#Batch Normalisation
 x = Dense(32, activation="relu", name="dense2", kernel_constraint=maxnorm(3))(x) #Dense2
 x = Dropout(0.2)(x)
 x = BatchNormalization()(x)
-#x = Dense(32, activation="relu", name="dense3", kernel_constraint=maxnorm(3))(x) #Dense3
-#x = Dropout(0.2)(x)
-#x = BatchNormalization()(x)
-#x = Dense(16, activation="relu", name="dense4", kernel_constraint=maxnorm(3))(x) #Dense4
-#x = Dropout(0.2)(x)
-#x = BatchNormalization()(x)
+x = Dense(32, activation="relu", name="dense3", kernel_constraint=maxnorm(3))(x) #Dense3
+x = Dropout(0.2)(x)
+x = BatchNormalization()(x)
+x = Dense(16, activation="relu", name="dense4", kernel_constraint=maxnorm(3))(x) #Dense4
+x = Dropout(0.2)(x)
+x = BatchNormalization()(x)
 x = Dense(16, activation="relu", name="dense5", kernel_constraint=maxnorm(3))(x) #Dense5
 
 outputs = Dense(2, activation="softmax", name="output")(x)
