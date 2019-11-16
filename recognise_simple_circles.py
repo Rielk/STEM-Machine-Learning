@@ -8,8 +8,6 @@ Created on Wed Nov 13 19:59:44 2019
 from keras.layers import Input, Dense, Dropout, BatchNormalization
 from keras.models import Model
 from keras.constraints import maxnorm
-#from keras.models import Sequential, Model, load_model
-#from keras.layers import Dense, Dropout, Flatten, BatchNormalization, Activation
 from generators import data_gen
 import matplotlib.pyplot as plt
 
@@ -43,35 +41,35 @@ model = Model(inputs=inputs, outputs=outputs)
 #model.add(Activation('softmax'))
 
 #Compile model
-model.compile(optimizer="sgd", loss="mean_squared_error", metrics=['accuracy'])
+model.compile(optimizer="sgd", loss="categorical_crossentropy", metrics=["accuracy"])
 
 data_needed = False
 #Produce learning data
-params = {"data_count_h":30000,
-          "data_count_s":30000,
-        
-          "r":1.,    
-          "sig_r":.1,
-          "angle_count":90,
-          "centre":(0,0),
-          "sig_c":(.3,.3),
-          "sig":.0,
-          "h_range":.4,
-          "h_r":.4,
-          "sig_hr":.02,
-        
-          "data_points":32,
-          "angles":(0,),
-          "sig_as":(.02,),
-          "about":(0.,0.),
-          "lower":-1.5,
-          "upper":1.5,
-          "background":20.,
-          "gauss":.5,
-          "noise":.001,
-          }
+data_params = {"data_count_h":30000,
+               "data_count_s":30000,
+               
+               "r":1.,    
+               "sig_r":.1,
+               "angle_count":90,
+               "centre":(0,0),
+               "sig_c":(.3,.3),
+               "sig":.0,
+               "h_range":.4,
+               "h_r":.4,
+               "sig_hr":.02,
+               
+               "data_points":32,
+               "angles":(0,),
+               "sig_as":(.02,),
+               "about":(0.,0.),
+               "lower":-1.5,
+               "upper":1.5,
+               "background":20.,
+               "gauss":.5,
+               "noise":.001,
+               }
 if data_needed:
-    _, data, labels = data_gen(params)
+    _, data, labels = data_gen(data_params)
     data = data[:,0]-20
     #Clear the shapes from memory
     _ = None
@@ -107,7 +105,7 @@ if v_data_needed:
     v_data = v_data[:,0]-19
 
 #Then fit the data
-history = model.fit(data, labels, epochs=50, validation_data=(v_data,v_labels), shuffle=True)
+history = model.fit(data, labels, epochs=1000, validation_data=(v_data,v_labels), shuffle=True)
 
 # Plot training & validation accuracy values
 plt.plot(history.history['accuracy'])
