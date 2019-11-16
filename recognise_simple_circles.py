@@ -43,10 +43,10 @@ model = Model(inputs=inputs, outputs=outputs)
 #Compile model
 model.compile(optimizer="sgd", loss="categorical_crossentropy", metrics=["accuracy"])
 
-data_needed = False
+data_needed = True
 #Produce learning data
-data_params = {"data_count_h":30000,
-               "data_count_s":30000,
+data_params = {"data_count_h":3000,
+               "data_count_s":3000,
                
                "r":1.,    
                "sig_r":.1,
@@ -70,14 +70,14 @@ data_params = {"data_count_h":30000,
                }
 if data_needed:
     _, data, labels = data_gen(data_params)
-    data = data[:,0]-20
+    data = data[:,0]
     #Clear the shapes from memory
     _ = None
 
-v_data_needed = False
+v_data_needed = True
 #Produce validation data
-v_params = {"data_count_h":10000,
-          "data_count_s":10000,
+v_params = {"data_count_h":1000,
+          "data_count_s":1000,
         
           "r":1.,    
           "sig_r":.1,
@@ -102,10 +102,10 @@ v_params = {"data_count_h":10000,
 
 if v_data_needed:
     _, v_data, v_labels = data_gen(v_params)
-    v_data = v_data[:,0]-19
+    v_data = v_data[:,0]
 
 #Then fit the data
-history = model.fit(data, labels, epochs=1000, validation_data=(v_data,v_labels), shuffle=True)
+history = model.fit(data, labels, epochs=100, validation_data=(v_data,v_labels), shuffle=True)
 
 # Plot training & validation accuracy values
 plt.plot(history.history['accuracy'])

@@ -80,7 +80,7 @@ if __name__ == '__main__':
                    }
 
     _, data, labels = data_gen(data_params)
-    data = data[:,0]-20
+    data = data[:,0]
     #Clear the shapes from memory
     _ = None
     
@@ -110,7 +110,7 @@ if __name__ == '__main__':
               }
     
     _, v_data, v_labels = data_gen(v_params)
-    v_data = v_data[:,0]-19
+    v_data = v_data[:,0]
     #Clear the shapes from memory
     _ = None
     
