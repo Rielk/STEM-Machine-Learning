@@ -8,7 +8,6 @@ from shape import Shape
 import numpy as np
 import matplotlib.pyplot as plt
 import keras
-import itertools
 
 def shapes_gen(count, r, sig_r, n, centre, sig_c, sig, h_range=None, h_r=None, sig_hr=None, h_n=None):
     if h_range is not None:
@@ -31,7 +30,7 @@ def projection_gen(shapes, n, angles, sig_as, about, lower, upper, background, n
     try:
         n[0]
     except (IndexError,TypeError):
-        n = (n,)
+        n = tuple(n for _ in angles)
     return np.array([[shape.project(x, np.random.normal(angle,sig_a),
                                     about, lower, upper, background,
                                     noise, gauss)
@@ -141,7 +140,7 @@ def default_params(n=200):
             "h_r":.1,
             "sig_hr":.02,
             
-            "data_points":(32,1000),
+            "data_points":32,
             "angles":(0,np.pi/4),
             "sig_as":(.02, .02),
             "about":(0.,0.),
