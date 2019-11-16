@@ -8,6 +8,7 @@ from shape import Shape
 import numpy as np
 import matplotlib.pyplot as plt
 import keras
+import itertools
 
 def shapes_gen(count, r, sig_r, n, centre, sig_c, sig, h_range=None, h_r=None, sig_hr=None, h_n=None):
     if h_range is not None:
@@ -98,8 +99,21 @@ def data_gen(params):
     print("Generating projections")
     projections = projection_gen(shapes, data_points, angles, sig_as, about, lower, upper, background, noise, gauss)
     #Normalise projections
-    projections -= min(np.min(list(projections[:,0])), np.min(list(projections[:,1])))
-    projections /= max(np.max(list(projections[:,0])), np.max(list(projections[:,1])))
+    minimum = np.inf
+    for i in range(projections.shape[0]):
+        for j in range(projections.shape[1]):
+            mi = np.min(projections[i,j])
+            if mi < minimum:
+                minimum = mi
+    projections -= mi
+    
+    maximum = -np.inf
+    for i in range(projections.shape[0]):
+        for j in range(projections.shape[1]):
+            ma = np.max(projections[i,j])
+            if ma > maximum:
+                maximum = ma
+    projections /= maximum
     #Produce the traget, 1 for holes, and 0 for solids
     print("Generating labels")
     labels = keras.utils.to_categorical(
@@ -139,9 +153,7 @@ def default_params(n=200):
             }
 
 if __name__ == '__main__':
-    params = default_params()
-    params["data_count_h"]=10
-    params["data_count_s"]=10
+    params = default_params(20)
     
     shapes, projections, labels = data_gen(params)
 
