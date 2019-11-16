@@ -27,39 +27,43 @@ def shapes_gen(count, r, sig_r, n, centre, sig_c, sig, h_range=None, h_r=None, s
 
 
 def projection_gen(shapes, n, angles, sig_as, about, lower, upper, background, noise, gauss):
-    return np.array([[shape.project(n, np.random.normal(angle,sig_a),
+    try:
+        n[0]
+    except (IndexError,TypeError):
+        n = (n,)
+    return np.array([[shape.project(x, np.random.normal(angle,sig_a),
                                     about, lower, upper, background,
                                     noise, gauss)
-                                    for angle, sig_a in zip(angles, sig_as)]
+                                    for x, angle, sig_a in zip(n, angles, sig_as)]
                                     for shape in shapes])
 
 def data_gen(params):
     """
     Params is a dictionary with key corresponding to values:
-    data_count_h    -int    -Total count of the data set which have holes
-    data_count_s    -int    -Total count of the data set which are solid
+    data_count_h    -int        -Total count of the data set which have holes
+    data_count_s    -int        -Total count of the data set which are solid
 
-    r               -float  -Base radius of shape
-    sig_r           -float  -Variance on average radius
-    angle_count     -int    -Number of radius points in a shape
-    centre          -tuple  -Average centre of shape
-    sig_c           -tuple  -Variance on the coordinates of centre
-    sig             -float  -The variance on radius points
-    h_range         -float  -The maximum distance of hole from centre
-    h_r             -float  -Base radius of hole
-    sig_hr          -float  -Variance on average radius of hole
+    r               -float      -Base radius of shape
+    sig_r           -float      -Variance on average radius
+    angle_count     -int        -Number of radius points in a shape
+    centre          -iter       -Average centre of shape
+    sig_c           -iter       -Variance on the coordinates of centre
+    sig             -float      -The variance on radius points
+    h_range         -float      -The maximum distance of hole from centre
+    h_r             -float      -Base radius of hole
+    sig_hr          -float      -Variance on average radius of hole
     
-    data_points     -int    -Number of points on projection
-    angles          -tuple  -Approximate angle to evaluate projection at
-    sig_as          -float  -Variance on each angle projection is taken
-    about           -float  -The point that rotation occurs about
-    lower           -float  -Lower limit on projection range
-    upper           -float  -Upper limit on projection range
-    background      -float  -Additional background value
-    gauss           -float  -The amount of gaussian blur    
-    noise           -float  -Ratio of t to make the variance on
-                            projection data (eg, 0.1, results in each
-                            data point having a varianve of 0.1t)
+    data_points     -int/iter   -Number of points on projection(can specify for each angle)
+    angles          -iter       -Approximate angle to evaluate projection at
+    sig_as          -float      -Variance on each angle projection is taken
+    about           -float      -The point that rotation occurs about
+    lower           -float      -Lower limit on projection range
+    upper           -float      -Upper limit on projection range
+    background      -float      -Additional background value
+    gauss           -float      -The amount of gaussian blur    
+    noise           -float      -Ratio of t to make the variance on
+                                projection data (eg, 0.1, results in each
+                                                 data point having a varianve of 0.1t)
     """
     shape_count_h = params["data_count_h"]
     shape_count_s = params["data_count_s"]
@@ -94,8 +98,8 @@ def data_gen(params):
     print("Generating projections")
     projections = projection_gen(shapes, data_points, angles, sig_as, about, lower, upper, background, noise, gauss)
     #Normalise projections
-    projections -= np.min(projections)
-    projections /= np.max(projections)
+    projections -= min(np.min(list(projections[:,0])), np.min(list(projections[:,1])))
+    projections /= max(np.max(list(projections[:,0])), np.max(list(projections[:,1])))
     #Produce the traget, 1 for holes, and 0 for solids
     print("Generating labels")
     labels = keras.utils.to_categorical(
@@ -123,7 +127,7 @@ def default_params(n=200):
             "h_r":.1,
             "sig_hr":.02,
             
-            "data_points":32,
+            "data_points":(32,1000),
             "angles":(0,np.pi/4),
             "sig_as":(.02, .02),
             "about":(0.,0.),
@@ -136,6 +140,8 @@ def default_params(n=200):
 
 if __name__ == '__main__':
     params = default_params()
+    params["data_count_h"]=10
+    params["data_count_s"]=10
     
     shapes, projections, labels = data_gen(params)
 
