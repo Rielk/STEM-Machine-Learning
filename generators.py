@@ -122,7 +122,7 @@ def data_gen(params):
     print("Finished data generation")
     return shapes, projections, labels
 
-def default_params(n=200):
+def data_default_params(n=200):
     """
     Produces a 'reasonable' set of parameters in a dictionary
     """
@@ -151,7 +151,7 @@ def default_params(n=200):
             "noise":.001,
             }
 
-def request_params_format():
+def request_data_params_format():
     print("""data_count_h    -int        
     -Total count of the data set which have holes
           

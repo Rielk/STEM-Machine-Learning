@@ -8,7 +8,7 @@ Created on Sat Nov 16 11:31:39 2019
 from keras.layers import Input, Dense, Dropout, BatchNormalization, concatenate
 from keras.models import Model
 from keras.constraints import maxnorm
-from generators import data_gen, default_params
+from generators import data_gen, data_default_params
 import numpy as np
 
 def Adam(params):
@@ -25,11 +25,13 @@ def Adam(params):
     dense_layers = []
     try:
         params["node_per_layer"]
+        mod = 1
         for i,node_count in enumerate(params["node_per_layer"]):
             if node_count == 0:
                 merge_layer = 3*i
+                mod = 0
                 continue
-            dense_layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+1), kernel_constraint=maxnorm(max_norm)))
+            dense_layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
             dense_layers.append(Dropout(drop_rate))
             dense_layers.append(BatchNormalization())
     except KeyError:
@@ -64,22 +66,25 @@ def Adam(params):
     model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
     return model
     
+def Adam_default_params():
+    return {"input_points":(32,2),
+            "node_per_layer":[32,32,32,0,16,16],
+            "dropout_rate":.2,
+            "max_norm":3.,
+            "layer_activation":"relu",
+            "output_activation":"sigmoid",
+            "optimizer":"sgd",
+            "loss":"categorical_crossentropy",
+            "training_epochs":10
+            }
+    
 
 if __name__ == '__main__':
-    model_params = {"input_points":(32,2),
-              "node_per_layer":[32,32,32,0,16,16],
-              "dropout_rate":.2,
-              "max_norm":3.,
-              "layer_activation":"relu",
-              "output_activation":"sigmoid",
-              "optimizer":"sgd",
-              "loss":"categorical_crossentropy",
-              "training_epochs":10
-              }
+    model_params = Adam_default_params
 
     model = Adam(model_params)
     #Produce learning data
-    data_params = default_params(600)
+    data_params = data_default_params(600)
     data_params["angles"] = (0, np.pi/4)
     _, data, labels = data_gen(data_params)
     data = [data[:,0], data[:,1]]
@@ -87,7 +92,7 @@ if __name__ == '__main__':
     _ = None
     
     #Produce validation data
-    v_params = default_params(200)
+    v_params = data_default_params(200)
     v_params["angles"] = (0, np.pi/4)
     v_params["background"] = 19.
     v_params["noise"] = .0011
