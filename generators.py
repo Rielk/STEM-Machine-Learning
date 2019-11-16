@@ -151,6 +151,68 @@ def default_params(n=200):
             "noise":.001,
             }
 
+def request_params_format():
+    print("""data_count_h    -int        
+    -Total count of the data set which have holes
+          
+data_count_s    -int        
+    -Total count of the data set which are solid
+
+r               -float
+    -Base radius of shape
+
+sig_r           -float      
+    -Variance on average radius
+
+angle_count     -int        
+    -Number of radius points in a shape
+
+centre          -iter       
+    -Average centre of shape
+
+sig_c           -iter       
+    -Variance on the coordinates of centre
+
+sig             -float      
+    -The variance on radius points
+
+h_range         -float      
+    -The maximum distance of hole from centre
+
+h_r             -float      
+    -Base radius of hole
+
+sig_hr          -float      
+    -Variance on average radius of hole
+    
+data_points     -int/iter   
+    -Number of points on projection(can specify for each angle)
+
+angles          -iter       
+    -Approximate angle to evaluate projection at
+
+sig_as          -float      
+    -Variance on each angle projection is taken
+
+about           -float      
+    -The point that rotation occurs about
+
+lower           -float      
+    -Lower limit on projection range
+
+upper           -float      
+    -Upper limit on projection range
+
+background      -float      
+    -Additional background value
+
+gauss           -float      
+    -The amount of gaussian blur    
+
+noise           -float      
+    -Ratio of t to make the variance on projection data (eg, 0.1, results in each data point having a varianve of 0.1t)
+    """)
+
 if __name__ == '__main__':
     params = default_params(20)
     
