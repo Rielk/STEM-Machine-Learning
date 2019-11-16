@@ -93,6 +93,9 @@ def data_gen(params):
     #Make the projections
     print("Generating projections")
     projections = projection_gen(shapes, data_points, angles, sig_as, about, lower, upper, background, noise, gauss)
+    #Normalise projections
+    projections -= np.min(projections)
+    projections /= np.max(projections)
     #Produce the traget, 1 for holes, and 0 for solids
     print("Generating labels")
     labels = keras.utils.to_categorical(
