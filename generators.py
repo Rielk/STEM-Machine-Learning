@@ -121,7 +121,7 @@ def data_gen(params):
             np.array([[1] if x < shape_count_h else [0] 
                         for x in range(shape_count_h+shape_count_s)]),
                         num_classes=2)
-    print("Finished data generation")
+    print("Finished data generation\n")
     return shapes, projections, labels
 
 def data_default_params(n=200):
