@@ -70,7 +70,6 @@ data_params = {"data_count_h":3000,
                }
 if data_needed:
     _, data, labels = data_gen(data_params)
-    data = data[:,0]
     #Clear the shapes from memory
     _ = None
 
@@ -102,7 +101,6 @@ v_params = {"data_count_h":1000,
 
 if v_data_needed:
     _, v_data, v_labels = data_gen(v_params)
-    v_data = v_data[:,0]
 
 #Then fit the data
 history = model.fit(data, labels, epochs=100, validation_data=(v_data,v_labels), shuffle=True)

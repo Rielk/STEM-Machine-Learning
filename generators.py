@@ -113,6 +113,8 @@ def data_gen(params):
             if ma > maximum:
                 maximum = ma
     projections /= maximum
+    # Plit the projections into lists
+    projections = [projections[:,i] for i in range(len(angles))]
     #Produce the traget, 1 for holes, and 0 for solids
     print("Generating labels")
     labels = keras.utils.to_categorical(
