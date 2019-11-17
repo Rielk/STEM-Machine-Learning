@@ -89,7 +89,7 @@ def Adam_default_params():
             "dropout_rate":.2,
             "max_norm":3.,
             "layer_activation":"relu",
-            "output_activation":"sigmoid",
+            "output_activation":"softmax",
             "optimizer":"sgd",
             "loss":"categorical_crossentropy",
             }
