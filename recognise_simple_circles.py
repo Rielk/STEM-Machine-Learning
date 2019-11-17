@@ -8,12 +8,15 @@ Created on Wed Nov 13 19:59:44 2019
 from models import Adam, Adam_default_params
 import matplotlib.pyplot as plt
 from runner import run
+import numpy as np
+from keras import backend
 
 plt.close("all")
+backend.clear_session()
 
 #Make the model
 model_params = Adam_default_params()
-model_params["input_points"] = (32,1)
+model_params["input_points"] = (32,2)
 
 #Produce learning data
 data_params = {"data_count_h":3000,
@@ -30,8 +33,8 @@ data_params = {"data_count_h":3000,
                "sig_hr":.02,
                
                "data_points":32,
-               "angles":(0,),
-               "sig_as":(.02,),
+               "angles":(0, np.pi/4),
+               "sig_as":(.02, .02),
                "about":(0.,0.),
                "lower":-1.5,
                "upper":1.5,
@@ -54,17 +57,18 @@ v_params = {"data_count_h":1000,
             "sig_hr":.02,
             
             "data_points":32,
-            "angles":(0,),
-            "sig_as":(.04,),
+            "angles":(0, np.pi/4),
+            "sig_as":(.04, .04),
             "about":(0.,0.),
             "lower":-1.5,
             "upper":1.5,
-            "background":19.,
+            "background":20.,
             "gauss":.5,
-            "noise":.0011,
+            "noise":.001,
             }
 
-train_params = {"model":Adam,"epochs":100}
+train_params = {"model":Adam, "epochs":100, "verification":True}
 
-run(train_params, model_params, data_params, v_params, True)
+model, history = run(train_params, model_params, data_params, v_params, True)
 
+backend.clear_session()
