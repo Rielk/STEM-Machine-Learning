@@ -12,6 +12,19 @@ from generators import data_gen, data_default_params
 import numpy as np
 
 def Adam(params):
+    """
+    Params is a dictionary with key corresponding to values:
+    input_points                  -tuple      -first index is points in a projection, second is the number of projections
+    node_per_layer                -iter       -A list of the number of nodes in each dense layer, 0 indicates the concatenation layer
+    number_of_single_layers       -int        -Alternative definition:The number of layers before concatenation
+    number_of_collection_layers   -int        -Alternative definition:The number of layers after concatenation
+    dropout_rate                  -float      -The frequency for the dropout layers
+    max_norm                      -float      -The Max Norm for the dense layers
+    layer_activation              -string     -The type of actication to use in the layers
+    output_activation             -string     -The type of activation to use in the final layer
+    optimizer                     -string     -The optimizer to use for training
+    loss                          -string     -The loss function to use when training
+    """
     inputs = []
     for n in range(params["input_points"][1]):
         i = Input(shape=(params["input_points"][0],), name="input_{}".format(n+1))
@@ -26,6 +39,7 @@ def Adam(params):
     try:
         params["node_per_layer"]
         mod = 1
+        merge_layer = 0
         for i,node_count in enumerate(params["node_per_layer"]):
             if node_count == 0:
                 merge_layer = 3*i
@@ -36,11 +50,11 @@ def Adam(params):
             dense_layers.append(BatchNormalization())
     except KeyError:
         params["number_of_single_layers"]
-        for i,node_count in enumerate(params["number_of_single_layers"]+params["number_of collection_layers"]):
-            dense_layers.append(Dense(params["input_points"], activation=activation, name="dense_{}".format(i+1), kernel_constraint=maxnorm(max_norm)))
+        for i in range(params["number_of_single_layers"]+params["number_of_collection_layers"]):
+            dense_layers.append(Dense(params["input_points"][0], activation=activation, name="dense_{}".format(i+1), kernel_constraint=maxnorm(max_norm)))
             dense_layers.append(Dropout(drop_rate))
             dense_layers.append(BatchNormalization())
-        params["number_of_single_layers"] = 3*i
+        merge_layer = 3*params["number_of_single_layers"]
     
     outs = []    
     for x in inputs:
@@ -75,19 +89,20 @@ def Adam_default_params():
             "output_activation":"sigmoid",
             "optimizer":"sgd",
             "loss":"categorical_crossentropy",
-            "training_epochs":10
             }
     
 
 if __name__ == '__main__':
-    model_params = Adam_default_params
+    model_params = Adam_default_params()
+#    del(model_params["node_per_layer"])
+#    model_params["number_of_single_layers"] = 3
+#    model_params["number_of_collection_layers"] = 2
 
     model = Adam(model_params)
     #Produce learning data
     data_params = data_default_params(600)
     data_params["angles"] = (0, np.pi/4)
     _, data, labels = data_gen(data_params)
-    data = [data[:,0], data[:,1]]
     #Clear the shapes from memory
     _ = None
     
@@ -98,9 +113,9 @@ if __name__ == '__main__':
     v_params["noise"] = .0011
     
     _, v_data, v_labels = data_gen(v_params)
-    v_data = [v_data[:,0], v_data[:,1]]
     #Clear the shapes from memory
     _ = None
     
     #Then fit the data
-    history = model.fit(data, labels, epochs=model_params["training_epochs"], validation_data=(v_data,v_labels), shuffle=True)
+    training_epochs = 10
+    history = model.fit(data, labels, epochs=training_epochs, validation_data=(v_data,v_labels), shuffle=True)
