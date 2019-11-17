@@ -66,7 +66,10 @@ def Adam(params):
         activation = params["output_activation"]
     except KeyError:
         pass
-    x = concatenate(outs)
+    if len(outs) > 1:
+        x = concatenate(outs)
+    else:
+        x = outs[0]
     
     for layer in dense_layers[merge_layer:]:
         x = layer(x)
