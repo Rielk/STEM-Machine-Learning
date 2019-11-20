@@ -7,7 +7,6 @@ Created on Sun Nov 17 20:03:38 2019
 """
 from generators import data_gen
 import matplotlib.pyplot as plt
-from models import Adam
 from keras import backend
 from save import Save_Manager
 import gc
@@ -15,20 +14,20 @@ import os
 
 def run(train_params, model_params, data_params, v_params=None, plot=False, path=os.path.join(os.getcwd(), "Saves")):
     data_manager = Save_Manager(path)
-    model = train_params["model"](model_params)
+    model = model_params["model"](model_params)
     
     ret = data_manager.load_data(data_params)
     if ret is not None:
         data , labels, key = ret
     else:
         shapes, data, labels = data_gen(data_params)
-        data_manager.save_data(data, labels, data_params)
+        key = data_manager.save_data(data, labels, data_params)
         data_manager.save_shapes(shapes, data_params)
     
     if train_params["verification"]:
         ret = data_manager.load_data(v_params)
         if ret is not None:
-            v_data , v_labels, key = ret
+            v_data , v_labels, _ = ret
         else:
             v_shapes, v_data, v_labels = data_gen(v_params)
             data_manager.save_data(v_data, v_labels, v_params)
@@ -36,6 +35,10 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         history = model.fit(data, labels, epochs=train_params["epochs"], validation_data=(v_data,v_labels), shuffle=True)
     else:
         history = model.fit(data, labels, epochs=train_params["epochs"], shuffle=True)
+    
+    path = os.path.join(path, str(key)+"_models")
+    model_manager = Save_Manager(path)
+    model_manager.save_model(model, model_params, train_params)
     
     if plot:
         # Plot training & validation accuracy values
@@ -72,7 +75,7 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     gc.collect()
 
 def train_default_params():
-    return {"model":Adam, "epochs":20, "verification":True}
+    return {"epochs":20, "verification":True}
 
 if __name__ == "__main__":
     from models import Adam_default_params

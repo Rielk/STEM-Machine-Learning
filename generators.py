@@ -216,7 +216,7 @@ noise           -float
     """)
 
 if __name__ == '__main__':
-    params = default_params(20)
+    params = data_default_params(20)
     
     shapes, projections, labels = data_gen(params)
 
