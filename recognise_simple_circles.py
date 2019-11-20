@@ -9,10 +9,8 @@ from models import Adam, Adam_default_params
 import matplotlib.pyplot as plt
 from runner import run
 import numpy as np
-from keras import backend
 
 plt.close("all")
-backend.clear_session()
 
 #Make the model
 model_params = Adam_default_params()
@@ -69,6 +67,4 @@ v_params = {"data_count_h":1000,
 
 train_params = {"model":Adam, "epochs":100, "verification":True}
 
-model, history = run(train_params, model_params, data_params, v_params, True)
-
-backend.clear_session()
+run(train_params, model_params, data_params, v_params, True)
