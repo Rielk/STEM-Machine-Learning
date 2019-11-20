@@ -8,12 +8,31 @@ Created on Sun Nov 17 20:03:38 2019
 from generators import data_gen
 import matplotlib.pyplot as plt
 from models import Adam
+from keras import backend
+from save import Save_Manager
+import gc
+import os
 
-def run(train_params, model_params, data_params, v_params=None, plot=False):
+def run(train_params, model_params, data_params, v_params=None, plot=False, path=os.path.join(os.getcwd(), "Saves")):
+    data_manager = Save_Manager(path)
     model = train_params["model"](model_params)
-    shapes, data, labels = data_gen(data_params)
+    
+    ret = data_manager.load_data(data_params)
+    if ret is not None:
+        data , labels, key = ret
+    else:
+        shapes, data, labels = data_gen(data_params)
+        data_manager.save_data(data, labels, data_params)
+        data_manager.save_shapes(shapes, data_params)
+    
     if train_params["verification"]:
-        v_shapes, v_data, v_labels = data_gen(v_params)
+        ret = data_manager.load_data(v_params)
+        if ret is not None:
+            v_data , v_labels, key = ret
+        else:
+            v_shapes, v_data, v_labels = data_gen(v_params)
+            data_manager.save_data(v_data, v_labels, v_params)
+            data_manager.save_shapes(v_shapes, v_params)
         history = model.fit(data, labels, epochs=train_params["epochs"], validation_data=(v_data,v_labels), shuffle=True)
     else:
         history = model.fit(data, labels, epochs=train_params["epochs"], shuffle=True)
@@ -49,21 +68,20 @@ def run(train_params, model_params, data_params, v_params=None, plot=False):
         shapes[-1].plot(axs[0,1])
         v_shapes[-1].plot(axs[1,1])
     
-    return model, history
+    backend.clear_session()
+    gc.collect()
 
 def train_default_params():
     return {"model":Adam, "epochs":20, "verification":True}
 
 if __name__ == "__main__":
-    from keras import backend
     from models import Adam_default_params
     from generators import data_default_params
     
-    backend.clear_session()
     plt.close("all")
     train_params = train_default_params()
     model_params = Adam_default_params()
     data_params = data_default_params(600)
     v_params = data_default_params(200)
     
-    model, history = run(train_params, model_params, data_params, v_params, True)
+    run(train_params, model_params, data_params, v_params, False)
