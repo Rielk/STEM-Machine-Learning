@@ -11,7 +11,7 @@ from keras.constraints import maxnorm
 from generators import data_gen, data_default_params
 import numpy as np
 
-def Adam(params):
+def Adam(params=None):
     """
     Params is a dictionary with key corresponding to values:
     input_points                  -tuple      -first index is points in a projection, second is the number of projections
@@ -25,66 +25,70 @@ def Adam(params):
     optimizer                     -string     -The optimizer to use for training
     loss                          -string     -The loss function to use when training
     """
-    inputs = []
-    for n in range(params["input_points"][1]):
-        i = Input(shape=(params["input_points"][0],), name="input_{}".format(n+1))
-        inputs.append(i)
-        
-    
-    drop_rate = params["dropout_rate"]
-    max_norm = params["max_norm"]
-    activation = params["layer_activation"]
-    
-    dense_layers = []
-    try:
-        params["node_per_layer"]
-        mod = 1
-        merge_layer = 0
-        for i,node_count in enumerate(params["node_per_layer"]):
-            if node_count == 0:
-                merge_layer = 3*i
-                mod = 0
-                continue
-            dense_layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
-            dense_layers.append(Dropout(drop_rate))
-            dense_layers.append(BatchNormalization())
-    except KeyError:
-        params["number_of_single_layers"]
-        for i in range(params["number_of_single_layers"]+params["number_of_collection_layers"]):
-            dense_layers.append(Dense(params["input_points"][0], activation=activation, name="dense_{}".format(i+1), kernel_constraint=maxnorm(max_norm)))
-            dense_layers.append(Dropout(drop_rate))
-            dense_layers.append(BatchNormalization())
-        merge_layer = 3*params["number_of_single_layers"]
-    
-    outs = []    
-    for x in inputs:
-        for layer in dense_layers[:merge_layer]:
-            x = layer(x)
-        outs.append(x)
-            
-    try:
-        activation = params["output_activation"]
-    except KeyError:
-        pass
-    if len(outs) > 1:
-        x = concatenate(outs)
+    if params is None:
+        return "Adam"
     else:
-        x = outs[0]
-    
-    for layer in dense_layers[merge_layer:]:
-        x = layer(x)
-    
-    outputs = Dense(2, activation=activation, name="output")(x)
-    model = Model(inputs=inputs, outputs=outputs)
-    
-    optimizer = params["optimizer"]
-    loss = params["loss"]
-    
-    model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
-    return model
+        inputs = []
+        for n in range(params["input_points"][1]):
+            i = Input(shape=(params["input_points"][0],), name="input_{}".format(n+1))
+            inputs.append(i)
+            
+        
+        drop_rate = params["dropout_rate"]
+        max_norm = params["max_norm"]
+        activation = params["layer_activation"]
+        
+        dense_layers = []
+        try:
+            params["node_per_layer"]
+            mod = 1
+            merge_layer = 0
+            for i,node_count in enumerate(params["node_per_layer"]):
+                if node_count == 0:
+                    merge_layer = 3*i
+                    mod = 0
+                    continue
+                dense_layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
+                dense_layers.append(Dropout(drop_rate))
+                dense_layers.append(BatchNormalization())
+        except KeyError:
+            params["number_of_single_layers"]
+            for i in range(params["number_of_single_layers"]+params["number_of_collection_layers"]):
+                dense_layers.append(Dense(params["input_points"][0], activation=activation, name="dense_{}".format(i+1), kernel_constraint=maxnorm(max_norm)))
+                dense_layers.append(Dropout(drop_rate))
+                dense_layers.append(BatchNormalization())
+            merge_layer = 3*params["number_of_single_layers"]
+        
+        outs = []    
+        for x in inputs:
+            for layer in dense_layers[:merge_layer]:
+                x = layer(x)
+            outs.append(x)
+                
+        try:
+            activation = params["output_activation"]
+        except KeyError:
+            pass
+        if len(outs) > 1:
+            x = concatenate(outs)
+        else:
+            x = outs[0]
+        
+        for layer in dense_layers[merge_layer:]:
+            x = layer(x)
+        
+        outputs = Dense(2, activation=activation, name="output")(x)
+        model = Model(inputs=inputs, outputs=outputs)
+        
+        optimizer = params["optimizer"]
+        loss = params["loss"]
+        
+        model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+        return model
     
 def Adam_default_params():
-    return {"input_points":(32,2),
+    return {"model":Adam,
+            "input_points":(32,2),
             "node_per_layer":[32,32,32,0,16,16],
             "dropout_rate":.2,
             "max_norm":3.,
