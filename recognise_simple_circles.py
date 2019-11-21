@@ -17,8 +17,8 @@ model_params = Adam_default_params()
 model_params["input_points"] = (32,2)
 
 #Produce learning data
-data_params = {"data_count_h":3000,
-               "data_count_s":3000,
+data_params = {"data_count_h":30000,
+               "data_count_s":30000,
                
                "r":1.,    
                "sig_r":.1,
@@ -41,8 +41,8 @@ data_params = {"data_count_h":3000,
                "noise":.001,
                }
 
-v_params = {"data_count_h":1000,
-            "data_count_s":1000,
+v_params = {"data_count_h":10000,
+            "data_count_s":10000,
             
             "r":1.,    
             "sig_r":.1,

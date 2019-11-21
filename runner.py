@@ -71,6 +71,8 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         shapes[-1].plot(axs[0,1])
         v_shapes[-1].plot(axs[1,1])
     
+    del model
+    del history
     backend.clear_session()
     gc.collect()
 
