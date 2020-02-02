@@ -117,7 +117,7 @@ class Save_Manager():
         model_dict = model_dict.copy()
         model_dict["model"] = model_dict["model"]()
         for k in self.dictionary["model"]:
-            if model_dict == self.model_dict["model"][k]:
+            if model_dict == self.dictionary["model"][k]:
                 key1 = k
                 break
         else:
@@ -135,7 +135,7 @@ class Save_Manager():
                 break
         else:
             return None
-        path = os.path.join(self.path, str(key))
+        path = os.path.join(self.path, str(key)+"_trained")
         path = os.path.join(path, str(n)+".h5")
         model = load_model(path)
         return model, key
