@@ -6,12 +6,12 @@ Created on Wed Nov 13 19:59:44 2019
 @author: william
 """
 from models import Adam
-from keras import backend
 import matplotlib.pyplot as plt
 from runner import run
 import numpy as np
-import gc
-
+import os
+os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 plt.close("all")
 
 #Produce learning data
@@ -23,7 +23,7 @@ data_params = {"data_count_h":30000,
                "angle_count":90,
                "centre":(0,0),
                "sig_c":(.3,.3),
-               "sig":.0,
+               "sig":.03,
                "h_range":.4,
                "h_r":.2,
                "sig_hr":.02,
@@ -47,7 +47,7 @@ v_params = {"data_count_h":10000,
             "angle_count":90,
             "centre":(0,0),
             "sig_c":(.3,.3),
-            "sig":.0,
+            "sig":.03,
             "h_range":.4,
             "h_r":.2,
             "sig_hr":.02,
@@ -83,15 +83,13 @@ model_params = {"model":Adam,
 
 optimizers = ["sgd", "RMSprop", "Adagrad", "Adadelta", "Adam", "Adamax", "Nadam"]
 
-accuracies = []
+run_data = []
 for o in optimizers:
     print("\nBegining tests with optimizer: {}".format(o))
     model_params["optimizer"] = o
     accuracy = 0
     n = 0
     while accuracy < 0.6 and n <= 5:
-        model, accuracy = run(train_params, model_params, data_params, v_params, False)
-        backend.clear_session()
-        gc.collect()
+        model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, False)
         del model
-    accuracies.append(accuracy+n)
+    run_data.append((accuracy, epoch, t, n))

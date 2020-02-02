@@ -7,9 +7,11 @@ Created on Sun Nov 17 20:03:38 2019
 """
 from generators import data_gen
 import matplotlib.pyplot as plt
+import numpy as np
 from keras import backend
 from keras.callbacks import callbacks as cb
 from save import Save_Manager
+import time
 import gc
 import os
 
@@ -45,11 +47,14 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
             data_manager.save_data(v_data, v_labels, v_params)
             data_manager.save_shapes(v_shapes, v_params)
         print("Begining fit")
+        start = time.time()
         history = model.fit(data, labels, epochs=train_params["epochs"], validation_data=(v_data,v_labels), shuffle=True, callbacks=callbacks)
     else:
         print("Begining fit")
+        start = time.time()
         history = model.fit(data, labels, epochs=train_params["epochs"], shuffle=True, callbacks=callbacks)
-    
+
+    end = time.time()
     path = os.path.join(path, str(key)+"_models")
     model_manager = Save_Manager(path)
     model_manager.save_model(model, model_params, train_params)
@@ -78,6 +83,7 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         print()
         print("Prediction with hole:\t",model.predict(v_data)[0])
         print("Prediction without hole:\t",model.predict(v_data)[-1])
+        print()
         
         fig, axs = plt.subplots(2,2)
         shapes[0].plot(axs[0,0])
@@ -91,7 +97,9 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     
     backend.clear_session()
     gc.collect()
-    return model, max(history.history["val_accuracy"])
+    epoch = np.argmin(history.history["val_loss"])
+    accuracy = history.history["val_accuracy"][epoch]
+    return model, accuracy, epoch, end-start
 
 def train_default_params():
     return {"epochs":20, "verification":True, "patience":5, "restore_best_weights":True}
@@ -106,4 +114,7 @@ if __name__ == "__main__":
     data_params = data_default_params(600)
     v_params = data_default_params(200)
     
-    run(train_params, model_params, data_params, v_params, True)
+    model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, True)
+    print(accuracy)
+    print(epoch)
+    print(t)
