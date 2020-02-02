@@ -58,6 +58,7 @@ class Save_Manager():
         return key
     
     def save_model(self, model, model_dict, train_dict):
+        model_dict = model_dict.copy()
         model_dict["model"] = model_dict["model"]()
         for k in self.dictionary["model"]:
             if model_dict == self.dictionary["model"][k]:
@@ -90,6 +91,17 @@ class Save_Manager():
         model.save(path)
         return key
         
+    def load_shapes(self, dictionary):
+        for k in self.dictionary["shapes"]:
+            if dictionary == self.dictionary["shapes"][k]:
+                key = k
+                break
+        else:
+            return None
+        with open(os.path.join(self.path, str(key)+"_shape.pkl"), "rb") as file:
+            shapes = pickle.load(file)
+        return shapes, key
+    
     def load_data(self, dictionary):
         for k in self.dictionary["data"]:
             if dictionary == self.dictionary["data"][k]:
@@ -102,6 +114,7 @@ class Save_Manager():
         return data, labels, key
     
     def load_model(self, model_dict, train_dict, n=0):
+        model_dict = model_dict.copy()
         model_dict["model"] = model_dict["model"]()
         for k in self.dictionary["model"]:
             if model_dict == self.model_dict["model"][k]:

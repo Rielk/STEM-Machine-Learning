@@ -26,7 +26,7 @@ def shapes_gen(count, r, sig_r, n, centre, sig_c, sig, h_range=None, h_r=None, s
                             sig) for _ in range(count)])
 
 
-def projection_gen(shapes, n, angles, sig_as, about, lower, upper, background, noise, gauss):
+def projection_gen(shapes, n, angles, sig_a, about, lower, upper, background, noise, gauss):
     try:
         n[0]
     except (IndexError,TypeError):
@@ -34,7 +34,7 @@ def projection_gen(shapes, n, angles, sig_as, about, lower, upper, background, n
     return np.array([[shape.project(x, np.random.normal(angle,sig_a),
                                     about, lower, upper, background,
                                     noise, gauss)
-                                    for x, angle, sig_a in zip(n, angles, sig_as)]
+                                    for x, angle in zip(n, angles)]
                                     for shape in shapes])
 
 def data_gen(params):
@@ -80,7 +80,7 @@ def data_gen(params):
     
     data_points = params["data_points"]
     angles = params["angles"]
-    sig_as = params["sig_as"]
+    sig_a = params["sig_a"]
     about = params["about"]
     lower = params["lower"]
     upper = params["upper"]
@@ -96,7 +96,7 @@ def data_gen(params):
     shapes = np.append(shapes, shapes_gen(shape_count_s, r,sig_r,angle_count,centre,sig_c,sig))
     #Make the projections
     print("Generating projections")
-    projections = projection_gen(shapes, data_points, angles, sig_as, about, lower, upper, background, noise, gauss)
+    projections = projection_gen(shapes, data_points, angles, sig_a, about, lower, upper, background, noise, gauss)
     #Normalise projections
     minimum = np.inf
     for i in range(projections.shape[0]):
@@ -144,7 +144,7 @@ def data_default_params(n=200):
             
             "data_points":32,
             "angles":(0,np.pi/4),
-            "sig_as":(.02, .02),
+            "sig_a":.02,
             "about":(0.,0.),
             "lower":-1.5,
             "upper":1.5,
@@ -193,7 +193,7 @@ data_points     -int/iter
 angles          -iter       
     -Approximate angle to evaluate projection at
 
-sig_as          -float      
+sig_a          -float      
     -Variance on each angle projection is taken
 
 about           -float      
@@ -230,5 +230,5 @@ if __name__ == '__main__':
     plt.figure()
     plt.plot(projections[0][0])
     plt.figure()
-    plt.plot(projections[params["data_count_h"]][0])
+    plt.plot(projections[0][params["data_count_h"]])
     

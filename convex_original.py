@@ -72,6 +72,7 @@ class Convex:
         else:    
             p_arr = np.stack([x.flatten(),y.flatten(),np.zeros(n*n)]).T
         th = self.thickness(p_arr) + background
+        th = th.reshape(n,n)
         if gauss is not None:
             th = gaussian_filter(th, sigma=gauss)
         if noise is not None:
@@ -109,15 +110,14 @@ if __name__ == '__main__':
                      [[1,1,1], [0,1,1], [1,1,0]]])-0.5+0.002
                      
     n = 128 # scan points
-    nr_rows, nr_cols = 4, 5
+    nr_rows, nr_cols = 3, 3
     # generate shape    
     t = Convex(cube)
     fig = plt.figure(figsize=(15, 10))
     for nr, r in enumerate(np.random.rand(nr_rows * nr_cols, 3)*360):
         t.euler_rotate(r)
-        th = t.image(n, pix_size=2/n, noise=3, gauss=1.5, background=10)
+        im = t.image(n, pix_size=2/n, noise=3, gauss=3, background=10)
         # th = t.image(n, pix_size=2/n, noise=3, gauss=1.5, background=10, dxdt=2e-5)
-        im = th.reshape(n,n)
         ax = fig.add_subplot(nr_rows, nr_cols, nr+1)
         ax.imshow(im, cmap='gray')
 

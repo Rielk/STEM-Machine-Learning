@@ -5,20 +5,18 @@ Created on Wed Nov 13 19:59:44 2019
 
 @author: william
 """
-from models import Adam, Adam_default_params
+from models import Adam
+from keras import backend
 import matplotlib.pyplot as plt
 from runner import run
 import numpy as np
+import gc
 
 plt.close("all")
 
-#Make the model
-model_params = Adam_default_params()
-model_params["input_points"] = (32,2)
-
 #Produce learning data
-data_params = {"data_count_h":3000,
-               "data_count_s":3000,
+data_params = {"data_count_h":30000,
+               "data_count_s":30000,
                
                "r":1.,    
                "sig_r":.1,
@@ -31,8 +29,8 @@ data_params = {"data_count_h":3000,
                "sig_hr":.02,
                
                "data_points":32,
-               "angles":(0, np.pi/4),
-               "sig_as":(.02, .02),
+               "angles":(0., np.pi/4),
+               "sig_a":.0,
                "about":(0.,0.),
                "lower":-1.5,
                "upper":1.5,
@@ -41,8 +39,8 @@ data_params = {"data_count_h":3000,
                "noise":.001,
                }
 
-v_params = {"data_count_h":1000,
-            "data_count_s":1000,
+v_params = {"data_count_h":10000,
+            "data_count_s":10000,
             
             "r":1.,    
             "sig_r":.1,
@@ -55,8 +53,8 @@ v_params = {"data_count_h":1000,
             "sig_hr":.02,
             
             "data_points":32,
-            "angles":(0, np.pi/4),
-            "sig_as":(.04, .04),
+            "angles":(0., np.pi/4),
+            "sig_a":.0,
             "about":(0.,0.),
             "lower":-1.5,
             "upper":1.5,
@@ -65,6 +63,35 @@ v_params = {"data_count_h":1000,
             "noise":.001,
             }
 
-train_params = {"model":Adam, "epochs":100, "verification":True}
+train_params = {"model":Adam, "epochs":200, "verification":True, "patience":10, "restore_best_weights":True}
 
-run(train_params, model_params, data_params, v_params, True)
+#Make the model
+net_structure = [32 for _ in range(8)]
+net_structure += [0]
+net_structure += [64 for _ in range(4)]
+net_structure += [32 for _ in range(4)]
+model_params = {"model":Adam,
+            "input_points":(32,2),
+            "node_per_layer":net_structure,
+            "dropout_rate":.1,
+            "max_norm":3.,
+            "layer_activation":"relu",
+            "output_activation":"softmax",
+            "optimizer":"rmsprop",#sgd
+            "loss":"categorical_crossentropy",
+            }
+
+optimizers = ["sgd", "RMSprop", "Adagrad", "Adadelta", "Adam", "Adamax", "Nadam"]
+
+accuracies = []
+for o in optimizers:
+    print("\nBegining tests with optimizer: {}".format(o))
+    model_params["optimizer"] = o
+    accuracy = 0
+    n = 0
+    while accuracy < 0.6 and n <= 5:
+        model, accuracy = run(train_params, model_params, data_params, v_params, False)
+        backend.clear_session()
+        gc.collect()
+        del model
+    accuracies.append(accuracy+n)
