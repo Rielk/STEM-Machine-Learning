@@ -89,8 +89,6 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         ax = axs[1,1]
         ax.plot(xs,v_data[0][0])
     
-    del model
-    del history
     backend.clear_session()
     gc.collect()
     return model, max(history.history["val_accuracy"])
