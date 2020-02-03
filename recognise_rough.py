@@ -4,13 +4,11 @@ Created on Thu Jan 16 00:32:55 2020
 
 @author: William
 """
-from models import Adam
+from models import Brian
+from generators import data_gen
 import matplotlib.pyplot as plt
 from runner import run
 import numpy as np
-import os
-os.environ["CUDA_DEVICE_ORDER"] = "PCI_BUS_ID" 
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
 plt.close("all")
 
 #Produce learning data
@@ -22,13 +20,13 @@ data_params = {"data_count_h":30000,
                "angle_count":90,
                "centre":(0,0),
                "sig_c":(.3,.3),
-               "sig":.03,
+               "sig":.05,
                "h_range":.4,
-               "h_r":.2,
-               "sig_hr":.02,
+               "h_r":.1,
+               "sig_hr":.01,
                
                "data_points":32,
-               "angles":(0., np.pi/4),
+               "angles":(0., np.pi/4, np.pi/2),
                "sig_a":.0,
                "about":(0.,0.),
                "lower":-1.5,
@@ -46,13 +44,13 @@ v_params = {"data_count_h":10000,
             "angle_count":90,
             "centre":(0,0),
             "sig_c":(.3,.3),
-            "sig":.03,
+            "sig":.05,
             "h_range":.4,
-            "h_r":.2,
-            "sig_hr":.02,
+            "h_r":.1,
+            "sig_hr":.01,
             
             "data_points":32,
-            "angles":(0., np.pi/4),
+            "angles":(0., np.pi/4, np.pi/2),
             "sig_a":.0,
             "about":(0.,0.),
             "lower":-1.5,
@@ -62,14 +60,20 @@ v_params = {"data_count_h":10000,
             "noise":.001,
             }
 
-train_params = {"model":Adam, "epochs":200, "verification":True, "patience":10, "restore_best_weights":True}
+train_params = {"model":Brian,
+                "epochs":200,
+                "verification":True,
+                "patience":10,
+                "restore_best_weights":True
+                }
 
 #Make the model
-net_structure = [32 for _ in range(8)]
+net_structure = [(32,4) for _ in range(4)]
+net_structure += [32 for _ in range(2)]
 net_structure += [0]
 net_structure += [64 for _ in range(4)]
-net_structure += [32 for _ in range(4)]
-model_params = {"model":Adam,
+net_structure += [16 for _ in range(4)]
+model_params = {"model":Brian,
             "input_points":(32,3),
             "node_per_layer":net_structure,
             "dropout_rate":.1,
@@ -81,3 +85,7 @@ model_params = {"model":Adam,
             }
 
 model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, True)
+
+v_params["data_count_h"] = 100
+v_params["data_count_s"] = 100
+shapes, data, labels = data_gen(v_params)

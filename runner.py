@@ -21,6 +21,7 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     print("Generating Model")
     data_manager = Save_Manager(path)
     model = model_params["model"](model_params)
+    print(model.summary())
     
     print("Generating Data")
     ret = data_manager.load_data(data_params)
@@ -86,14 +87,14 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         print()
         
         fig, axs = plt.subplots(2,2)
-        shapes[0].plot(axs[0,0])
-        v_shapes[0].plot(axs[0,1])
+        v_shapes[0].plot(axs[0,0])
+        v_shapes[-1].plot(axs[0,1])
         n= data_params["data_points"]
         xs = [i*(data_params["upper"]-data_params["lower"])/n+(data_params["lower"]-data_params["upper"])/2 for i in range(n)]
         ax = axs[1,0]
-        ax.plot(xs,data[0][0])
-        ax = axs[1,1]
         ax.plot(xs,v_data[0][0])
+        ax = axs[1,1]
+        ax.plot(xs,v_data[0][-1])
     
     backend.clear_session()
     gc.collect()

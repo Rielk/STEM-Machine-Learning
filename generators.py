@@ -32,10 +32,10 @@ def projection_gen(shapes, n, angles, sig_a, about, lower, upper, background, no
     except (IndexError,TypeError):
         n = tuple(n for _ in angles)
     return np.array([[shape.project(x, np.random.normal(angle,sig_a),
-                                    about, lower, upper, background,
-                                    noise, gauss)
-                                    for x, angle in zip(n, angles)]
-                                    for shape in shapes])
+                                        about, lower, upper, background,
+                                        noise, gauss)
+                                        for x, angle in zip(n, angles)]
+                                        for shape in shapes])
 
 def data_gen(params):
     """
@@ -217,6 +217,7 @@ noise           -float
 
 if __name__ == '__main__':
     params = data_default_params(20)
+    params["channels"] = 1
     
     shapes, projections, labels = data_gen(params)
 
