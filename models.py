@@ -140,7 +140,7 @@ def Brian(params=None):
         except KeyError:
             pass
         if len(outs) > 1:
-            x = concatenate(outs)
+            x = concatenate(outs, axis=1)
         else:
             x = outs[0]
         

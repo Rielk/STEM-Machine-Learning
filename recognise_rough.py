@@ -68,9 +68,9 @@ train_params = {"model":Brian,
                 }
 
 #Make the model
-net_structure = [(32,4) for _ in range(4)]
+net_structure = [0]
+net_structure += [(32,4) for _ in range(4)]
 net_structure += [32 for _ in range(2)]
-net_structure += [0]
 net_structure += [64 for _ in range(4)]
 net_structure += [16 for _ in range(4)]
 model_params = {"model":Brian,
