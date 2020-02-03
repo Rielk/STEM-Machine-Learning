@@ -122,7 +122,7 @@ def data_gen(params):
                         for x in range(shape_count_h+shape_count_s)]),
                         num_classes=2)
     print("Finished data generation\n")
-    return shapes, projections, labels
+    return shapes, np.array(projections), np.array(labels)
 
 def data_default_params(n=200):
     """
