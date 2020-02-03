@@ -23,7 +23,7 @@ data_params = {"data_count_h":30000,
                "angle_count":90,
                "centre":(0,0),
                "sig_c":(.3,.3),
-               "sig":.03,
+               "sig":.0,
                "h_range":.4,
                "h_r":.2,
                "sig_hr":.02,
@@ -47,7 +47,7 @@ v_params = {"data_count_h":10000,
             "angle_count":90,
             "centre":(0,0),
             "sig_c":(.3,.3),
-            "sig":.03,
+            "sig":.0,
             "h_range":.4,
             "h_r":.2,
             "sig_hr":.02,
@@ -81,7 +81,7 @@ model_params = {"model":Adam,
             "loss":"categorical_crossentropy",
             }
 
-optimizers = ["sgd", "RMSprop", "Adagrad", "Adadelta", "Adam", "Adamax", "Nadam"]
+optimizers = ["RMSprop"]#["sgd", "RMSprop", "Adagrad", "Adadelta", "Adam", "Adamax", "Nadam"]
 
 run_data = []
 for o in optimizers:
@@ -90,6 +90,6 @@ for o in optimizers:
     accuracy = 0
     n = 0
     while accuracy < 0.6 and n <= 5:
-        model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, False)
-        del model
+        model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, True)
+        #del model
     run_data.append((accuracy, epoch, t, n))
