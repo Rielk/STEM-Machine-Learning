@@ -84,11 +84,18 @@ class Save_Manager():
             key = len(self.dictionary["train"])
             self.dictionary["train"][key] = dictionary
             self.update_dict()
-        path = os.path.join(self.path, str(key)+"_trained")
-        if not os.path.exists(path):
-            os.mkdir(path)
-        path = os.path.join(path, str(len(os.listdir(path)))+".h5")
-        model.save(path)
+        path1 = os.path.join(self.path, str(key)+"_trained")
+        path2 = os.path.join(self.path, str(key)+"_history")
+        if not os.path.exists(path1):
+            os.mkdir(path1)
+        if not os.path.exists(path2):
+            os.mkdir(path2)
+        n = str(len(os.listdir(path1)))
+        path1 = os.path.join(path1, n+".h5")
+        model.save(path1)
+        path2 = os.path.join(path2, n+".pkl")
+        with open(path2, "wb") as file:
+            pickle.dump(model.history.history, file)
         return key
         
     def load_shapes(self, dictionary):
@@ -125,8 +132,8 @@ class Save_Manager():
         
         path = os.path.join(self.path, str(key1)+"_model")
         train_manager = Save_Manager(path)
-        model, key2 = train_manager.load_trained(train_dict, n)
-        return model, key1, key2
+        model, history, key2 = train_manager.load_trained(train_dict, n)
+        return model, history, key1, key2
     
     def load_trained(self, dictionary, n=0):
         for k in self.dictionary["train"]:
@@ -135,7 +142,15 @@ class Save_Manager():
                 break
         else:
             return None
-        path = os.path.join(self.path, str(key)+"_trained")
-        path = os.path.join(path, str(n)+".h5")
-        model = load_model(path)
-        return model, key
+        path1 = os.path.join(self.path, str(key)+"_trained")
+        path1 = os.path.join(path1, str(n)+".h5")
+        model = load_model(path1)
+        try:
+            path2 = os.path.join(self.path, str(key)+"_history")
+            path2 = os.path.join(path2, str(n)+".pkl")
+            with open(path2, "rb") as file:
+                history = pickle.load(file)
+            return model, history, key
+        except:
+            print("No History Found")
+            return model, None, key
