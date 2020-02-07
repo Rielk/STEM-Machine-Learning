@@ -14,11 +14,12 @@ class Shape():
         self._r = r
         self._theta = 2*np.pi/n
         self.centre = np.array([centre[0], centre[1]])
-        self.theta = np.array([self._theta*i for i in range(n+1)])
         if sig is None:
             sig = .1*r
-        self.r = np.array([r+np.random.normal(0,sig) for t in self.theta])
-        self.r[-1]=self.r[0]
+        if r >=0 :
+            self.theta = np.array([self._theta*i for i in range(n+1)])
+            self.r = np.array([r+np.random.normal(0,sig) for t in self.theta])
+            self.r[-1]=self.r[0]
         self.holes = []
         if h_centre is not None:
             if not h_r:
@@ -28,12 +29,16 @@ class Shape():
             h_centre = (h_centre[0]+centre[0], h_centre[1]+centre[1])
             self.add_hole(h_r, h_n, h_centre, sig)
         self.rotate_coords(0, about=(.0,.0))
+        self.spirals = []
         
     def add_hole(self, r, n, centre, sig):
         self.holes.append(Shape(r, n, centre, sig))
         dr = np.sqrt(r**2+self._r**2)-self._r
         self._r += dr
         self.r += dr
+    
+    def add_spiral(self):
+        pass
     
     def rotate_coords(self, phi=0.0, about=None):
         """
@@ -101,12 +106,18 @@ class Shape():
         if noise:
             t += np.random.normal(0, noise*t)
         return t
-        
+
+class Spiral(Shape):
+    def __init__(self, r=-1, n=360, centre=(0,0), sig=None):
+        self.theta = np.array([2*np.pi/n*i for i in range(n+1)])
+        self.r = np.array([.1*t for t in self.theta])
+        super().__init__(-1, n, centre, sig)
     
 if __name__ == '__main__':
     
     #shape = Shape(np.random.normal(0.8,.1), 120, sig=.03, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
-    shape = Shape(np.random.normal(1,.1), 90, sig=.0, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
+    #shape = Shape(np.random.normal(1,.1), 90, sig=.0, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
+    shape = Spiral(np.random.normal(1,.1), 90, sig=.0, centre=(np.random.normal(0,.3),np.random.normal(0,.3)))
     plt.close("all")
     fig, axs = plt.subplots(2,2)
     ax = axs[0, 0]
