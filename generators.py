@@ -9,7 +9,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 import keras
 
-def shapes_gen(count, r, sig_r, n, centre, sig_c, sig, h_range=None, h_r=None, sig_hr=None, h_n=None):
+def shapes_gen(count, r, sig_r, n, centre, sig_c, sig,
+               h_range=None, h_r=None, sig_hr=None, h_n=None,
+               s_r=None, s_centre=None, s_n=None, s_density=1,
+               s_s=.04, s_t=(.01, .1), s_clock=True, s_theta=0.):
     if h_range is not None:
         h_theta = np.random.rand()*2*np.pi
         h_rad = h_range*np.random.rand()
