@@ -12,8 +12,8 @@ from scipy.ndimage.filters import gaussian_filter
 class Shape():
     def __init__(self, r=1, n=360, centre=(0,0), sig=None,
                  h_centre=None, h_r=None, h_n=None, density=1,
-                 s_r=None, s_centre=None, s_n=None, s_density=1,
-                 s_s=.04, s_t=(.01, .1), s_clock=True, s_theta=0.):
+                 s_r=None, s_centre=None, s_n=None, s_density=None,
+                 s_s=None, s_t=None, s_clock=None, s_theta=None):
         self.density = density
         self._r = r
         self.centre = np.array([centre[0], centre[1]])
@@ -134,6 +134,8 @@ class Spiral(Shape):
     def __init__(self, r=1, strtness=.04, thckness=(.01, .1), clock=True, n=360, dtheta=0., centre=(0,0), density=1):
         self._theta = r/strtness/n
         theta = [self._theta*i for i in range(n+1)]
+        if clock is None:
+            raise ValueError("Please provide a value for clock")
         if clock:
             self.theta = np.array(theta+theta[::-1]+[theta[0]]) + dtheta
         else:
@@ -148,7 +150,7 @@ if __name__ == '__main__':
     
     #shape = Shape(np.random.normal(0.8,.1), 120, sig=.03, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
     #shape = Shape(np.random.normal(1,.1), 90, sig=.0, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
-    shape = Shape(np.random.normal(1,.1), 90, sig=.0,
+    shape = Shape(np.random.normal(1,.1), 90, sig=.03,
                   centre=(np.random.normal(0,.3),np.random.normal(0,.3)),
                   s_centre=np.random.rand(2)*.3-.15, s_r=np.random.normal(.6,.02),
                   s_s=.04, s_t=(.01,.1), s_clock=False, s_theta=np.random.rand(1)*np.pi*2)
