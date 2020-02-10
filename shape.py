@@ -12,7 +12,7 @@ from scipy.ndimage.filters import gaussian_filter
 class Shape():
     def __init__(self, r=1, n=360, centre=(0,0), sig=None,
                  h_centre=None, h_r=None, h_n=None, density=1,
-                 s_r=None, s_centre=None, s_n=None, s_density=None,
+                 s_r=None, s_centre=None, s_n=None, s_density=1,
                  s_s=None, s_t=None, s_clock=None, s_theta=None):
         self.density = density
         self._r = r
