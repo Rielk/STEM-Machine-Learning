@@ -82,8 +82,16 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         plt.show()
         
         print()
-        print("Prediction with hole:\t",model.predict(v_data)[0])
-        print("Prediction without hole:\t",model.predict(v_data)[-1])
+        try:
+            data_params["h_range"]
+            print("Prediction with hole:\t",model.predict(v_data)[0])
+            print("Prediction without hole:\t",model.predict(v_data)[-1])
+        except KeyError:
+            print("Prediction with clockwise: [0,1]\n",model.predict(data)[0:10])
+            print("Prediction with anticlockwise: [1,0]\n",model.predict(data)[-11:-1])
+            print()
+            print("Prediction with clockwise: [0,1]\n",model.predict(v_data)[0:10])
+            print("Prediction with anticlockwise: [1,0]\n",model.predict(v_data)[-11:-1])
         print()
         
         fig, axs = plt.subplots(2,2)

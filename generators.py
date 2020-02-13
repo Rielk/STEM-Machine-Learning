@@ -147,7 +147,7 @@ def data_gen(params):
                             sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
                             sig_st=sig_st, s_clock=True, sig_sr=sig_sr)
         print("Generating anticlockwise spirals")
-        shapes = np.append(shapes, shapes_gen(shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,
+        shapes = np.append(shapes, shapes_gen(shape_count_s, r,sig_r,angle_count,centre,sig_c,sig,
                                               s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
                                               sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
                                               sig_st=sig_st, s_clock=False, sig_sr=sig_sr))

@@ -176,7 +176,7 @@ if __name__ == '__main__':
 #    shape.rotate_coords(3*np.pi/2)
 #    shape.plot(ax, "g")
     
-    n = 100
+    n = 64
     upper = 1.5
     lower = -1.5
     xs = [i*(upper-lower)/n+(lower-upper)/2 for i in range(n)]
