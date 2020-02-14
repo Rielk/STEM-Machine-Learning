@@ -19,11 +19,11 @@ data_params = {"data_count_h":30000,
                "sig_r":.1,
                "angle_count":90,
                "centre":(0,0),
-               "sig_c":(.3,.3),
+               "sig_c":(.0,.0),#(.3,.3),
                "sig":.0,#.05
-               "s_range":.2,
+               "s_range":.0,#.2,
                "s_r":.6,
-               "sig_sr":.02,
+               "sig_sr":.0,#.02,
                "s_density":1.,
                "sig_sd":.0,
                "s_s":.04,
@@ -49,13 +49,13 @@ v_params["data_count_s"] = 10000
 train_params = {"model":Brian,
                 "epochs":200,
                 "verification":True,
-                "patience":1,
+                "patience":10,
                 "restore_best_weights":True
                 }
 
 #Make the model
-net_structure = [0]
-net_structure += [(64,4) for _ in range(4)]
+net_structure = [(64,4) for _ in range(4)]
+net_structure += [0]
 net_structure += [64 for _ in range(2)]
 net_structure += [32 for _ in range(4)]
 net_structure += [16 for _ in range(4)]
@@ -66,7 +66,7 @@ model_params = {"model":Brian,
             "max_norm":3.,
             "layer_activation":"relu",
             "output_activation":"softmax",
-            "optimizer":"Adagrad",
+            "optimizer":"Adamax",
             "loss":"categorical_crossentropy",
             }
 
