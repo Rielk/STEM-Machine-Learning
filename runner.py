@@ -104,8 +104,6 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         ax = axs[1,1]
         ax.plot(xs,v_data[0][-1])
     
-    backend.clear_session()
-    gc.collect()
     epoch = np.argmin(history.history["val_loss"])
     accuracy = history.history["val_accuracy"][epoch]
     return model, accuracy, epoch, end-start
