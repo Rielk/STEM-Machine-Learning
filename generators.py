@@ -46,15 +46,19 @@ def shapes_gen(count, r, sig_r, n, centre, sig_c, sig,
                             sig) for _ in range(count)])
 
 
-def projection_gen(shapes, n, angles, sig_a, about, lower, upper, background, noise, gauss):
+def projection_gen(shapes, n, angles, sig_a, about, lower, upper, background, noise, gauss, limit_var=None):
     try:
         n[0]
     except (IndexError,TypeError):
         n = tuple(n for _ in angles)
+    if limit_var is None:
+        dxs = [.0 for _ in range(angles)]
+    else:
+        dxs = [np.random.normal(0, limit_var) for _ in range(angles)]
     return np.array([[shape.project(x, np.random.normal(angle,sig_a),
-                                        about, lower, upper, background,
+                                        about, lower+dx, upper+dx, background,
                                         noise, gauss)
-                                        for x, angle in zip(n, angles)]
+                                        for x, angle, dx in zip(n, angles, dxs)]
                                         for shape in shapes])
 
 def data_gen(params):
@@ -130,6 +134,10 @@ def data_gen(params):
     background = params["background"]
     gauss = params["gauss"]
     noise = params["noise"]
+    try:
+        limit_var = params["limit_var"]
+    except KeyError:
+        limit_var = None
     
     if use_holes and use_spirals:
         raise ValueError("Do not provide both hole and spiral parameters")
@@ -155,7 +163,7 @@ def data_gen(params):
         raise ValueError("provide either hole or spiral parameters")
     #Make the projections
     print("Generating projections")
-    projections = projection_gen(shapes, data_points, angles, sig_a, about, lower, upper, background, noise, gauss)
+    projections = projection_gen(shapes, data_points, angles, sig_a, about, lower, upper, background, noise, gauss, limit_var)
     #Normalise projections
     minimum = np.inf
     for i in range(projections.shape[0]):

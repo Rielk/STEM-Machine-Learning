@@ -12,8 +12,8 @@ import numpy as np
 plt.close("all")
 
 #Produce learning data
-data_params = {"data_count_h":1200,
-               "data_count_s":1200,
+data_params = {"data_count_h":30000,
+               "data_count_s":30000,
                
                "r":1.,    
                "sig_r":.1,
@@ -21,7 +21,7 @@ data_params = {"data_count_h":1200,
                "centre":(0,0),
                "sig_c":(.0,.0),#(.3,.3),
                "sig":.05,
-               "s_range":.2,
+               "s_range":.1,
                "s_r":.6,
                "sig_sr":.02,
                "s_density":1.,
@@ -40,14 +40,15 @@ data_params = {"data_count_h":1200,
                "background":20.,
                "gauss":.5,
                "noise":.001,
+               #"limit_var":.0
                }
 
 v_params = data_params.copy()
-v_params["data_count_h"] = 1000
-v_params["data_count_s"] = 1000
+v_params["data_count_h"] = 10000
+v_params["data_count_s"] = 10000
 
 train_params = {"model":Brian,
-                "epochs":20,
+                "epochs":200,
                 "verification":True,
                 "patience":10,
                 "restore_best_weights":True
@@ -66,11 +67,14 @@ model_params = {"model":Brian,
             "max_norm":3.,
             "layer_activation":"relu",
             "output_activation":"softmax",
-            "optimizer":"Adamax",
+            "optimizer":"Adagrad",
             "loss":"categorical_crossentropy",
             }
 
-model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, True)
+n = 0
+accuracy = 0
+while n <= 0.7 and accuracy < 10:
+    model, accuracy, epoch, t = run(train_params, model_params, data_params, v_params, True)
 
 v_params["data_count_h"] = 100
 v_params["data_count_s"] = 100
