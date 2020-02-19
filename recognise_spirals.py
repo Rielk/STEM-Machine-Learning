@@ -12,18 +12,18 @@ import numpy as np
 plt.close("all")
 
 #Produce learning data
-data_params = {"data_count_h":30000,
-               "data_count_s":30000,
+data_params = {"data_count_h":1200,
+               "data_count_s":1200,
                
                "r":1.,    
                "sig_r":.1,
                "angle_count":90,
                "centre":(0,0),
                "sig_c":(.0,.0),#(.3,.3),
-               "sig":.0,#.05
-               "s_range":.0,#.2,
+               "sig":.05,
+               "s_range":.2,
                "s_r":.6,
-               "sig_sr":.0,#.02,
+               "sig_sr":.02,
                "s_density":1.,
                "sig_sd":.0,
                "s_s":.04,
@@ -43,11 +43,11 @@ data_params = {"data_count_h":30000,
                }
 
 v_params = data_params.copy()
-v_params["data_count_h"] = 10000
-v_params["data_count_s"] = 10000
+v_params["data_count_h"] = 1000
+v_params["data_count_s"] = 1000
 
 train_params = {"model":Brian,
-                "epochs":200,
+                "epochs":20,
                 "verification":True,
                 "patience":10,
                 "restore_best_weights":True

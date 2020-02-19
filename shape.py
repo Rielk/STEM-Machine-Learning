@@ -150,13 +150,13 @@ if __name__ == '__main__':
     
     #shape = Shape(np.random.normal(0.8,.1), 120, sig=.03, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
     #shape = Shape(np.random.normal(1,.1), 90, sig=.0, centre=(np.random.normal(0,.3),np.random.normal(0,.3)), h_centre=np.random.rand(2)*.8-.4, h_r=np.random.normal(.1,.02))
-    shape = Shape(np.random.normal(1,.1), 90, sig=.03,
-                  centre=(np.random.normal(0,.3),np.random.normal(0,.3)),
-                  s_centre=np.random.rand(2)*.3-.15, s_r=np.random.normal(.6,.02),
-                  s_s=.04, s_t=(.01,.1), s_clock=False, s_theta=np.random.rand(1)*np.pi*2)
-#    shape = Spiral(r=.8, strtness=.04, thckness=(.01, .1),
-#                   clock=True, n=90, dtheta=0.,
-#                   centre=(np.random.normal(0,.3),np.random.normal(0,.3)))
+#    shape = Shape(np.random.normal(1,.1), 90, sig=.03,
+#                  centre=(np.random.normal(0,.3),np.random.normal(0,.3)),
+#                  s_centre=np.random.rand(2)*.3-.15, s_r=np.random.normal(.6,.02),
+#                  s_s=.04, s_t=(.01,.1), s_clock=False, s_theta=np.random.rand(1)*np.pi*2)
+    shape = Spiral(r=.8, strtness=.04, thckness=(.01, .1),
+                   clock=True, n=90, dtheta=0.,
+                   centre=(np.random.normal(0,.3),np.random.normal(0,.3)))
     plt.close("all")
     fig, axs = plt.subplots(2,2)
     ax = axs[0, 0]
