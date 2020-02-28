@@ -15,20 +15,48 @@ def shapes_gen(count, r, sig_r, n, centre, sig_c, sig,
                sig_sd=None, s_s=None, sig_ss=None, s_t=None,
                sig_st=None, s_clock=None):
     if h_range is not None and s_r is not None:
-        raise ValueError("Do not provide both hole and spiral parameters")
+        h_centres = []
+        for _ in range(count):
+            h_theta = np.random.rand()*2*np.pi
+            h_rad = h_range*np.random.rand()
+            h_centres.append((h_rad*np.sin(h_theta),h_rad*np.cos(h_theta)))
+        
+        s_centres = []
+        for _ in range(count):
+            s_theta = np.random.rand()*2*np.pi
+            s_rad = s_range*np.random.rand()
+            s_centres.append((s_rad*np.sin(s_theta),s_rad*np.cos(s_theta)))
+        
+        return np.array([Shape(r=np.random.normal(r,sig_r), n=n,
+                               centre=(np.random.normal(centre[0],sig_c[0]),
+                                np.random.normal(centre[1],sig_c[1])),
+                               sig=sig, h_centre=h_centre,
+                               h_r=np.random.normal(h_r,sig_hr),
+                               s_r=np.random.normal(s_r, sig_sr),
+                               s_centre=s_centre, s_n=s_n,
+                               s_density=np.random.normal(s_density, sig_sd),
+                               s_s=np.random.normal(s_s, sig_ss),
+                               s_t=tuple(np.random.normal(s_t, sig_st)),
+                               s_clock=s_clock, s_theta=np.random.rand()*np.pi*2)
+                               for h_centre,s_centre in zip(h_centres, s_centres)])
+
     elif h_range is not None:
-        h_theta = np.random.rand()*2*np.pi
-        h_rad = h_range*np.random.rand()
-        h_centre = (h_rad*np.sin(h_theta),h_rad*np.cos(h_theta))
+        h_centres = []
+        for _ in range(count):
+            h_theta = np.random.rand()*2*np.pi
+            h_rad = h_range*np.random.rand()
+            h_centres.append((h_rad*np.sin(h_theta),h_rad*np.cos(h_theta)))
         return np.array([Shape(np.random.normal(r,sig_r), n,
                                (np.random.normal(centre[0],sig_c[0]),
                                 np.random.normal(centre[1],sig_c[1])),
                                 sig, h_centre, np.random.normal(h_r,sig_hr))
-                                for _ in range(count)])
+                                for h_centre in h_centres])
     elif s_r is not None:
-        s_theta = np.random.rand()*2*np.pi
-        s_rad = s_range*np.random.rand()
-        s_centre = (s_rad*np.sin(s_theta),s_rad*np.cos(s_theta))
+        s_centres = []
+        for _ in range(count):
+            s_theta = np.random.rand()*2*np.pi
+            s_rad = s_range*np.random.rand()
+            s_centres.append((s_rad*np.sin(s_theta),s_rad*np.cos(s_theta)))
         return np.array([Shape(np.random.normal(r, sig_r), n,
                                (np.random.normal(centre[0],sig_c[0]),
                                 np.random.normal(centre[1],sig_c[1])),
@@ -38,7 +66,8 @@ def shapes_gen(count, r, sig_r, n, centre, sig_c, sig,
                                 s_r=np.random.normal(s_r, sig_sr),
                                 s_s=np.random.normal(s_s, sig_ss),
                                 s_t=tuple(np.random.normal(s_t, sig_st)),
-                                s_theta=np.random.rand()*np.pi*2) for _ in range(count)])
+                                s_theta=np.random.rand()*np.pi*2) 
+                                for s_centre in s_centres])
     else:
         return np.array([Shape(np.random.normal(r,sig_r), n,
                            (np.random.normal(centre[0],sig_c[0]),
@@ -52,9 +81,9 @@ def projection_gen(shapes, n, angles, sig_a, about, lower, upper, background, no
     except (IndexError,TypeError):
         n = tuple(n for _ in angles)
     if limit_var is None:
-        dxs = [.0 for _ in range(angles)]
+        dxs = [.0 for _ in angles]
     else:
-        dxs = [np.random.normal(0, limit_var) for _ in range(angles)]
+        dxs = [np.random.normal(0, limit_var) for _ in angles]
     return np.array([[shape.project(x, np.random.normal(angle,sig_a),
                                         about, lower+dx, upper+dx, background,
                                         noise, gauss)
@@ -89,9 +118,6 @@ def data_gen(params):
                                 projection data (eg, 0.1, results in each
                                                  data point having a varianve of 0.1t)
     """
-    shape_count_h = params["data_count_h"]
-    shape_count_s = params["data_count_s"]
-    
     r = params["r"]
     sig_r = params["sig_r"]
     angle_count = params["angle_count"]
@@ -100,6 +126,8 @@ def data_gen(params):
     sig = params["sig"]
     
     try:
+        shape_count_h = params["data_count_h"]
+        shape_count_s = params["data_count_s"]
         h_range = params["h_range"]
         h_r = params["h_r"]
         sig_hr = params["sig_hr"]
@@ -108,6 +136,12 @@ def data_gen(params):
         use_holes = False
     
     try:
+        shape_count_c = params["data_count_c"]
+        shape_count_a = params["data_count_a"]
+        try:
+            shape_count_n = params["data_count_n"]
+        except KeyError:
+            shape_count_n = 0
         s_r = params["s_r"]
         sig_sr = params["sig_sr"]
         s_range = params["s_range"]
@@ -140,25 +174,61 @@ def data_gen(params):
         limit_var = None
     
     if use_holes and use_spirals:
-        raise ValueError("Do not provide both hole and spiral parameters")
+        print("Generating shapes with holes")
+        print("...with clockwise spirals")
+        shapes = shapes_gen(shape_count_c*shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,
+                            h_range=h_range, h_r=h_r, sig_hr=sig_hr,
+                            s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
+                            sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
+                            sig_st=sig_st, s_clock=True, sig_sr=sig_sr)
+        print("...with anticlockwise spirals")
+        shapes = np.append(shapes, shapes_gen(shape_count_a*shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,
+                                              h_range=h_range, h_r=h_r, sig_hr=sig_hr,
+                                              s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
+                                              sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
+                                              sig_st=sig_st, s_clock=False, sig_sr=sig_sr))
+        if shape_count_n:
+            print("...without spirals")
+            shapes = np.append(shapes, shapes_gen(shape_count_n*shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,h_range,h_r,sig_hr))
+
+        print("Generating shapes without holes")
+        print("...with clockwise spirals")
+        shapes = np.append(shapes, shapes_gen(shape_count_c*shape_count_s, r,sig_r,angle_count,centre,sig_c,sig,
+                            s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
+                            sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
+                            sig_st=sig_st, s_clock=True, sig_sr=sig_sr))
+        print("...with anticlockwise spirals")
+        shapes = np.append(shapes, shapes_gen(shape_count_a*shape_count_s, r,sig_r,angle_count,centre,sig_c,sig,
+                                              s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
+                                              sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
+                                              sig_st=sig_st, s_clock=False, sig_sr=sig_sr))
+        if shape_count_n:
+            print("...without spirals")
+            shapes = np.append(shapes, shapes_gen(shape_count_n*shape_count_s, r,sig_r,angle_count,centre,sig_c,sig))
+
     elif use_holes:
         #Shapes with holes
         print("Generating shapes with holes")
-        shapes = shapes_gen(shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,h_range,h_r, sig_hr)
+        shapes = shapes_gen(shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,h_range,h_r,sig_hr)
         #Shapes without holes
         print("Generating shapes without holes")
         shapes = np.append(shapes, shapes_gen(shape_count_s, r,sig_r,angle_count,centre,sig_c,sig))
+        
     elif use_spirals:
         print("Generating clockwise spirals")
-        shapes = shapes_gen(shape_count_h, r,sig_r,angle_count,centre,sig_c,sig,
+        shapes = shapes_gen(shape_count_c, r,sig_r,angle_count,centre,sig_c,sig,
                             s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
                             sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
                             sig_st=sig_st, s_clock=True, sig_sr=sig_sr)
         print("Generating anticlockwise spirals")
-        shapes = np.append(shapes, shapes_gen(shape_count_s, r,sig_r,angle_count,centre,sig_c,sig,
+        shapes = np.append(shapes, shapes_gen(shape_count_a, r,sig_r,angle_count,centre,sig_c,sig,
                                               s_r=s_r, s_range=s_range, s_n=s_n, s_density=s_density,
                                               sig_sd=sig_sd, s_s=s_s, sig_ss=sig_ss, s_t=s_t,
                                               sig_st=sig_st, s_clock=False, sig_sr=sig_sr))
+        if shape_count_n:
+            print("Generating without spirals")
+            shapes = np.append(shapes, shapes_gen(shape_count_n, r,sig_r,angle_count,centre,sig_c,sig))
+    
     else:
         raise ValueError("provide either hole or spiral parameters")
     #Make the projections
@@ -180,14 +250,43 @@ def data_gen(params):
             if ma > maximum:
                 maximum = ma
     projections /= maximum
-    # Plit the projections into lists
+    # Split the projections into lists
     projections = [projections[:,i] for i in range(len(angles))]
-    #Produce the traget, 1 for holes, and 0 for solids
+    
     print("Generating labels")
-    labels = keras.utils.to_categorical(
-            np.array([[1] if x < shape_count_h else [0] 
-                        for x in range(shape_count_h+shape_count_s)]),
-                        num_classes=2)
+    if use_holes and use_spirals:
+        #Generate list for holes or not, 1 for holes, and 0 for solids
+        set_size = shape_count_a+shape_count_c+shape_count_n
+        hole_labels = keras.utils.to_categorical(
+                np.array([[1] if x < set_size*shape_count_h else [0] 
+                            for x in range(set_size*(shape_count_h+shape_count_s))]),
+                            num_classes=2)
+    
+        #Generate list for spirals or not, 1 for clockwise, and 0 for anticlockwise and 2 no spiral
+        base_array = np.array([[1] if x < shape_count_c*shape_count_h else
+                      [0] if x < (shape_count_c+shape_count_a)*shape_count_h else [2]
+                      for x in range((shape_count_c+shape_count_a+shape_count_n)*shape_count_h)])
+        base_array = np.append(base_array, base_array)
+        spiral_labels = keras.utils.to_categorical(base_array,num_classes=3)
+        
+        #Join lists into one list for return
+        labels = [hole_labels, spiral_labels]
+   
+    elif use_holes:
+        #Produce the target, 1 for holes, and 0 for solids
+        labels = keras.utils.to_categorical(
+                np.array([[1] if x < shape_count_h else [0] 
+                            for x in range(shape_count_h+shape_count_s)]),
+                            num_classes=2)
+    elif use_spirals:
+        #Produce the target, 1 for clockwise, and 0 for anticlockwise and 2 no spiral
+        labels = keras.utils.to_categorical(
+                np.array([[1] if x < shape_count_c else
+                          [0] if x < shape_count_c+shape_count_a else [2]
+                            for x in range(shape_count_c+shape_count_a+shape_count_n)]),
+                            num_classes=3)
+    else:
+        raise ValueError("provide either hole or spiral parameters")
     print("Finished data generation\n")
     return shapes, projections, labels
 
@@ -283,20 +382,55 @@ noise           -float
     """)
 
 if __name__ == '__main__':
-    params = data_default_params(20)
+    params = {"data_count_h":2,
+              "data_count_s":2,
+              "data_count_c":2,
+              "data_count_a":2,
+              "data_count_n":2,
+              
+              "r":1.,    
+              "sig_r":.1,
+              "angle_count":90,
+              "centre":(0,0),
+              "sig_c":(.3,.3),
+              "sig":.05,
+              "h_range":.4,
+              "h_r":.1,
+              "sig_hr":.01,
+              "s_range":.0,
+              "s_r":.6,
+              "sig_sr":.02,
+              "s_density":1.,
+              "sig_sd":.0,
+              "s_s":.04,
+              "sig_ss":.008,
+              "s_t":(.01,.1),
+              "sig_st":(.002,.02),
+              
+              "data_points":64,
+              "angles":(0., np.pi/2),
+              "sig_a":.01,
+              "about":(0.,0.),
+              "lower":-1.5,
+              "upper":1.5,
+              "background":20.,
+              "gauss":.5,
+              "noise":.001,
+              "limit_var":.05
+              }
     params["channels"] = 1
     
     shapes, projections, labels = data_gen(params)
 
     plt.close("all")    
     fig, axs = plt.subplots(2,2)
-    shapes[0].plot(axs[0,0])
-    shapes[1].plot(axs[1,0])
-    shapes[params["data_count_h"]].plot(axs[0,1])
-    shapes[params["data_count_h"]+1].plot(axs[1,1])
+    shapes[17].plot(axs[0,0])
+    shapes[18].plot(axs[1,0])
+    shapes[21].plot(axs[0,1])
+    shapes[22].plot(axs[1,1])
     
     plt.figure()
     plt.plot(projections[0][0])
     plt.figure()
-    plt.plot(projections[0][params["data_count_h"]])
+    plt.plot(projections[0][1])
     
