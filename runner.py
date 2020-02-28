@@ -62,13 +62,25 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     
     if plot:
         #Plot training & validation accuracy values
-        plt.plot(history.history["accuracy"])
-        plt.plot(history.history["val_accuracy"])
+        try:
+            plt.plot(history.history["accuracy"])
+            plt.plot(history.history["val_accuracy"])
+            acc1 = True
+        except KeyError:
+            plt.plot(history.history["output_main_accuracy"])
+            plt.plot(history.history["output_assister_accuracy"])
+            plt.plot(history.history["val_output_main_accuracy"])
+            plt.plot(history.history["val_output_assister_accuracy"])
+            acc1 = False
+            
         plt.title("Model accuracy")
         plt.ylabel("Accuracy")
         plt.yscale("log")
         plt.xlabel("Epoch")
-        plt.legend(["Train", "Test"], loc="upper left")
+        if acc1:
+            plt.legend(["Train", "Test"], loc="upper left")
+        else:
+            plt.legend(["Train main", "Train assisst", "Test main", "Test assist"], loc="upper left")
         
         # Plot training & validation loss values
         plt.figure()
@@ -105,7 +117,10 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         ax.plot(xs,v_data[0][-1])
     
     epoch = np.argmin(history.history["val_loss"])
-    accuracy = history.history["val_accuracy"][epoch]
+    try:
+        accuracy = history.history["val_accuracy"][epoch]
+    except KeyError:
+        accuracy = history.history["val_output_main_accuracy"][epoch]
     return model, accuracy, epoch, end-start
 
 def train_default_params():
