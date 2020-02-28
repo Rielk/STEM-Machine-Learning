@@ -112,7 +112,6 @@ def Brian(params=None):
         activation = params["layer_activation"]
         
         layers = []
-        params["node_per_layer"]
         mod = 1
         merge_layer = 0
         for i,node_count in enumerate(params["node_per_layer"]):
@@ -149,13 +148,78 @@ def Brian(params=None):
         
         x = Flatten()(x)
         
-        outputs = Dense(2, activation=activation, name="output")(x)
+        outputs = Dense(params["output_categories"], activation=activation, name="output")(x)
         model = Model(inputs=inputs, outputs=outputs)
         
         optimizer = params["optimizer"]
         loss = params["loss"]
         
         model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+        return model
+    
+def Charlie(params=None):
+    if params is None:
+        return "Charlie"
+    else:
+        inputs = []
+        for n in range(params["input_points"][1]):
+            i = Input(shape=(params["input_points"][0],), name="input_{}".format(n+1))
+            inputs.append(i)
+        
+        drop_rate = params["dropout_rate"]
+        max_norm = params["max_norm"]
+        activation = params["layer_activation"]
+        
+        layers = []
+        mod = 1
+        merge_layer = 0
+        for i,node_count in enumerate(params["node_per_layer"]):
+            if node_count == 0:
+                merge_layer = 3*i
+                mod = 0
+                continue
+            if type(node_count) is tuple:
+                layers.append(Conv1D(node_count[0], node_count[1], activation=activation, name="conv1D_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
+            else:
+                layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
+            layers.append(Dropout(drop_rate))
+            layers.append(BatchNormalization())
+        
+        r = Reshape((params["input_points"][0], 1))
+        outs = []    
+        for x in inputs:
+            x = r(x)
+            for layer in layers[:merge_layer]:
+                x = layer(x)
+            outs.append(x)
+                
+        try:
+            activation = params["output_activation"]
+        except KeyError:
+            pass
+        if len(outs) > 1:
+            x = concatenate(outs, axis=-1)
+        else:
+            x = outs[0]
+        
+        for layer in layers[merge_layer:]:
+            x = layer(x)
+        
+        x = Flatten()(x)
+        
+        output1 = Dense(params["output_categories"][0], activation=activation, name="output_main")(x)
+        output2 = Dense(params["output_categories"][1], activation=activation, name="output_assister")(x)
+        outputs = [output1, output2]
+        model = Model(inputs=inputs, outputs=outputs)
+        
+        optimizer = params["optimizer"]
+        loss = params["loss"]
+        a_loss = params["a_loss"]
+        loss_weights = params["weight_ratio"]
+        model.compile(optimizer=optimizer,
+                      loss={"output_main":loss,
+                            "output_assister":a_loss},
+                      loss_weights=loss_weights, metrics=["accuracy"])
         return model
  
 def Adam_default_params():
