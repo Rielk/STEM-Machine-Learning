@@ -263,11 +263,17 @@ def data_gen(params):
                             num_classes=2)
     
         #Generate list for spirals or not, 1 for clockwise, and 0 for anticlockwise and 2 no spiral
-        base_array = np.array([[1] if x < shape_count_c*shape_count_h else
+        base_array1 = np.array([[1] if x < shape_count_c*shape_count_h else
                       [0] if x < (shape_count_c+shape_count_a)*shape_count_h else [2]
                       for x in range((shape_count_c+shape_count_a+shape_count_n)*shape_count_h)])
-        base_array = np.append(base_array, base_array)
-        spiral_labels = keras.utils.to_categorical(base_array,num_classes=3)
+        base_array2 = np.array([[1] if x < shape_count_c*shape_count_s else
+                      [0] if x < (shape_count_c+shape_count_a)*shape_count_s else [2]
+                      for x in range((shape_count_c+shape_count_a+shape_count_n)*shape_count_s)])
+        base_array = np.append(base_array1, base_array2)
+        if shape_count_n == 0:
+            spiral_labels = keras.utils.to_categorical(base_array,num_classes=2)
+        else:
+            spiral_labels = keras.utils.to_categorical(base_array,num_classes=3)
         
         #Join lists into one list for return
         labels = [hole_labels, spiral_labels]
@@ -287,6 +293,14 @@ def data_gen(params):
                             num_classes=3)
     else:
         raise ValueError("provide either hole or spiral parameters")
+    
+    try:
+        output_number = params["output_number"]
+    except KeyError:
+        output_number = 0
+    if output_number == 1:
+        labels = np.append(labels[0], labels[1], axis=1)
+    
     print("Finished data generation\n")
     return shapes, projections, labels
 

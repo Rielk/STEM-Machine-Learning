@@ -23,6 +23,15 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     model = model_params["model"](model_params)
     print(model.summary())
     
+    if train_params["patience"] >= 0:
+        callbacks = [cb.EarlyStopping(monitor='val_loss', patience=train_params["patience"], restore_best_weights=train_params["restore_best_weights"])]
+    else:
+        callbacks = []
+    try:
+        callbacks += train_params["callbacks"]
+    except KeyError:
+        print("No Custom Callbacks")
+    
     print("Generating Data")
     ret = data_manager.load_data(data_params)
     if ret is not None:
@@ -32,11 +41,6 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         shapes, data, labels = data_gen(data_params)
         key = data_manager.save_data(data, labels, data_params)
         data_manager.save_shapes(shapes, data_params)
-    
-    if train_params["patience"] >= 0:
-        callbacks = [cb.EarlyStopping(monitor='val_loss', patience=train_params["patience"], restore_best_weights=train_params["restore_best_weights"])]
-    else:
-        callbacks = []
     
     if train_params["verification"]:
         ret = data_manager.load_data(v_params)
