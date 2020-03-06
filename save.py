@@ -105,8 +105,11 @@ class Save_Manager():
                 break
         else:
             return None
-        with open(os.path.join(self.path, str(key)+"_shape.pkl"), "rb") as file:
-            shapes = pickle.load(file)
+        try:
+            with open(os.path.join(self.path, str(key)+"_shape.pkl"), "rb") as file:
+                shapes = pickle.load(file)
+        except FileNotFoundError:
+            return None
         return shapes, key
     
     def load_data(self, dictionary):
@@ -116,8 +119,11 @@ class Save_Manager():
                 break
         else:
             return None
-        with open(os.path.join(self.path, str(key)+"_data.pkl"), "rb") as file:
-            data, labels = pickle.load(file)
+        try:
+            with open(os.path.join(self.path, str(key)+"_data.pkl"), "rb") as file:
+                data, labels = pickle.load(file)
+        except FileNotFoundError:
+            return None
         return data, labels, key
     
     def load_model(self, model_dict, train_dict, n=0):
