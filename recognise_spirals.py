@@ -14,6 +14,7 @@ plt.close("all")
 #Produce learning data
 data_params = {"data_count_c":30000,
                "data_count_a":30000,
+               "data_count_n":0,
                
                "r":1.,    
                "sig_r":.1,
@@ -50,7 +51,7 @@ v_params["data_count_a"] = 10000
 train_params = {"model":Brian,
                 "epochs":200,
                 "verification":True,
-                "patience":20,
+                "patience":40,
                 "restore_best_weights":True
                 }
 
