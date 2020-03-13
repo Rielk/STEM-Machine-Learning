@@ -136,12 +136,15 @@ def data_gen(params):
         use_holes = False
     
     try:
+        shape_count_n = params["data_count_n"]
+        assume_all_holes = False
+    except KeyError:
+        shape_count_n = 0
+        assume_all_holes = True
+    
+    try:
         shape_count_c = params["data_count_c"]
         shape_count_a = params["data_count_a"]
-        try:
-            shape_count_n = params["data_count_n"]
-        except KeyError:
-            shape_count_n = 0
         s_r = params["s_r"]
         sig_sr = params["sig_sr"]
         s_range = params["s_range"]
@@ -241,7 +244,7 @@ def data_gen(params):
             mi = np.min(projections[i,j])
             if mi < minimum:
                 minimum = mi
-    projections -= mi
+    projections -= minimum
     
     maximum = -np.inf
     for i in range(projections.shape[0]):
@@ -270,7 +273,7 @@ def data_gen(params):
                       [0] if x < (shape_count_c+shape_count_a)*shape_count_s else [2]
                       for x in range((shape_count_c+shape_count_a+shape_count_n)*shape_count_s)])
         base_array = np.append(base_array1, base_array2)
-        if shape_count_n == 0:
+        if assume_all_holes:
             spiral_labels = keras.utils.to_categorical(base_array,num_classes=2)
         else:
             spiral_labels = keras.utils.to_categorical(base_array,num_classes=3)
@@ -286,11 +289,13 @@ def data_gen(params):
                             num_classes=2)
     elif use_spirals:
         #Produce the target, 1 for clockwise, and 0 for anticlockwise and 2 no spiral
-        labels = keras.utils.to_categorical(
-                np.array([[1] if x < shape_count_c else
-                          [0] if x < shape_count_c+shape_count_a else [2]
-                            for x in range(shape_count_c+shape_count_a+shape_count_n)]),
-                            num_classes=3)
+        base_array = np.array([[1] if x < shape_count_c else
+                     [0] if x < shape_count_c+shape_count_a else [2]
+                     for x in range(shape_count_c+shape_count_a+shape_count_n)])
+        if assume_all_holes:
+            labels = keras.utils.to_categorical(base_array,num_classes=2)
+        else:
+            labels = keras.utils.to_categorical(base_array,num_classes=3)
     else:
         raise ValueError("provide either hole or spiral parameters")
     
