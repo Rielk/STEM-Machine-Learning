@@ -15,13 +15,16 @@ import time
 import gc
 import os
 
-def run(train_params, model_params, data_params, v_params=None, plot=False, path=os.path.join(os.getcwd(), "Saves")):
-    backend.clear_session()
-    gc.collect()
-    print("Generating Model")
-    data_manager = Save_Manager(path)
-    model = model_params["model"](model_params)
-    print(model.summary())
+def run(train_params, model_params, data_params, v_params=None, plot=False, path=os.path.join(os.getcwd(), "Saves"), model=None):
+    if model == None:
+        backend.clear_session()
+        gc.collect()
+        print("Generating Model")
+        model = model_params["model"](model_params)
+        print(model.summary())
+    else:
+        pass
+    data_manager = Save_Manager(path)    
     
     if train_params["patience"] >= 0:
         callbacks = [cb.EarlyStopping(monitor='val_loss', patience=train_params["patience"], restore_best_weights=train_params["restore_best_weights"])]
@@ -66,6 +69,7 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     
     if plot:
         #Plot training & validation accuracy values
+        plt.figure()
         try:
             plt.plot(history.history["accuracy"])
             plt.plot(history.history["val_accuracy"])
@@ -124,7 +128,7 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     try:
         accuracy = history.history["val_accuracy"][epoch]
     except KeyError:
-        accuracy = history.history["val_output_main_accuracy"][epoch]
+        accuracy = (history.history["val_output_main_accuracy"][epoch], history.history["val_output_assister_accuracy"][epoch])
     return model, accuracy, epoch, end-start
 
 def train_default_params():
