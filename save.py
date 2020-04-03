@@ -72,8 +72,8 @@ class Save_Manager():
         if not os.path.exists(path):
             os.mkdir(path)
         train_manager = Save_Manager(path)
-        key2 = train_manager.save_trained(model, train_dict)
-        return key1, key2
+        key2, n = train_manager.save_trained(model, train_dict)
+        return key1, key2, n
     
     def save_trained(self, model, dictionary):
         for k in self.dictionary["train"]:
@@ -96,7 +96,7 @@ class Save_Manager():
         path2 = os.path.join(path2, n+".pkl")
         with open(path2, "wb") as file:
             pickle.dump(model.history.history, file)
-        return key
+        return key, n
         
     def load_shapes(self, dictionary):
         for k in self.dictionary["shapes"]:

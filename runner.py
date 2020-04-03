@@ -65,7 +65,7 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
     end = time.time()
     path = os.path.join(path, str(key)+"_models")
     model_manager = Save_Manager(path)
-    model_manager.save_model(model, model_params, train_params)
+    model_key, train_key, model_n = model_manager.save_model(model, model_params, train_params)
     
     if plot:
         #Plot training & validation accuracy values
@@ -81,24 +81,28 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
             plt.plot(history.history["val_output_assister_accuracy"])
             acc1 = False
             
-        plt.title("Model accuracy")
+        plt.title("Network accuracy")
         plt.ylabel("Accuracy")
-        plt.yscale("log")
+        #plt.yscale("log")
         plt.xlabel("Epoch")
         if acc1:
-            plt.legend(["Train", "Test"], loc="upper left")
+            plt.legend(["Train", "Validation"], loc="upper left")
         else:
             plt.legend(["Train main", "Train assisst", "Test main", "Test assist"], loc="upper left")
+        plt.xlim(0)
+        plt.tight_layout()
         
         # Plot training & validation loss values
         plt.figure()
         plt.plot(history.history["loss"])
         plt.plot(history.history["val_loss"])
-        plt.title("Model loss")
+        plt.title("Network loss")
         plt.ylabel("Loss")
-        plt.yscale("log")
+        #plt.yscale("log")
         plt.xlabel("Epoch")
-        plt.legend(["Train", "Test"], loc="upper left")
+        plt.legend(["Train", "Validation"], loc="upper left")
+        plt.xlim(0)
+        plt.tight_layout()
         plt.show()
         
         print()
@@ -115,21 +119,39 @@ def run(train_params, model_params, data_params, v_params=None, plot=False, path
         print()
         
         fig, axs = plt.subplots(2,2)
-        v_shapes[0].plot(axs[0,0])
-        v_shapes[-1].plot(axs[0,1])
+        i = 1
+        j = -1
+        axs[0,0].set_xlim(data_params["lower"],data_params["upper"])
+        axs[0,1].set_xlim(data_params["lower"],data_params["upper"])
+        v_shapes[i].rotate_coords(about=data_params["about"])
+        v_shapes[i].plot(axs[0,0])
+        v_shapes[j].rotate_coords(about=data_params["about"])
+        v_shapes[j].plot(axs[0,1])
         n= data_params["data_points"]
         xs = [i*(data_params["upper"]-data_params["lower"])/n+(data_params["lower"]-data_params["upper"])/2 for i in range(n)]
         ax = axs[1,0]
-        ax.plot(xs,v_data[0][0])
+        ax.plot(xs,v_data[0][i])
+        ax.set_xlim(data_params["lower"],data_params["upper"])
+        ax.set_ylim(0,1)
+        ax.set_aspect('equal', 'box')
+        ax.set_ylabel("Intensity")
+        ax.set_xlabel("Position")
         ax = axs[1,1]
-        ax.plot(xs,v_data[0][-1])
+        ax.plot(xs,v_data[0][j])
+        ax.set_xlim(data_params["lower"],data_params["upper"])
+        ax.set_ylim(0,1)
+        ax.set_aspect('equal', 'box')
+        ax.set_ylabel("Intensity")
+        ax.set_xlabel("Position")
+        plt.tight_layout()
     
     epoch = np.argmin(history.history["val_loss"])
     try:
         accuracy = history.history["val_accuracy"][epoch]
     except KeyError:
         accuracy = (history.history["val_output_main_accuracy"][epoch], history.history["val_output_assister_accuracy"][epoch])
-    return model, accuracy, epoch, end-start
+    keys = [key, model_key, train_key, model_n]
+    return model, accuracy, epoch, end-start, keys
 
 def train_default_params():
     return {"epochs":20, "verification":True, "patience":5, "restore_best_weights":True}

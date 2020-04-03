@@ -6,7 +6,8 @@ Created on Sat Nov 16 11:31:39 2019
 @author: william
 """
 from keras.layers import Input, Dense, Dropout, BatchNormalization
-from keras.layers import concatenate, Conv1D, Reshape, Flatten, MaxPool1D
+from keras.layers import concatenate, Conv1D, Reshape
+from keras.layers import Flatten, MaxPool1D
 from keras.models import Model 
 from keras.constraints import maxnorm
 from generators import data_gen, data_default_params
@@ -157,6 +158,12 @@ def Brian(params=None):
         
         model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
         return model
+   
+def Brian_recompile(model, params):
+    optimizer = params["optimizer"]
+    loss = params["loss"]
+    model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+    return model
     
 def Charlie(params=None):
     if params is None:
@@ -186,7 +193,7 @@ def Charlie(params=None):
                     layer_tracker += 1
                     continue
             if type(node_count) is tuple:
-                layers.append(Conv1D(node_count[0], node_count[1], activation=activation, name="conv1D_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
+                layers.append(Conv1D(node_count[0], node_count[1], activation=activation, name="conv1D_{}".format(i+mod), kernel_constraint=maxnorm(max_norm), padding="same"))
                 layer_tracker += 1
             else:
                 layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
@@ -408,7 +415,164 @@ def Eliot(params=None):
         
         model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
         return model
-    
+
+def Frank(params=None):
+    if params is None:
+        return "Frank"
+    else:
+        inputs = []
+        for n in range(params["input_points"][1]):
+            i = Input(shape=(params["input_points"][0],), name="input_{}".format(n+1))
+            inputs.append(i)
+        
+        drop_rate = params["dropout_rate"]
+        max_norm = params["max_norm"]
+        activation = params["layer_activation"]
+        
+        layers = []
+        mod = 1
+        merge_layer = 0
+        layer_tracker = 0
+        for i,node_count in enumerate(params["node_per_layer"]):
+            if node_count == 0:
+                if merge_layer == 0:
+                    merge_layer = layer_tracker
+                    mod = 0
+                    continue
+                else:
+                    layers.append(Flatten())
+                    layer_tracker += 1
+                    continue
+            if type(node_count) is tuple:
+                layers.append(Conv1D(node_count[0], node_count[1], activation=activation, name="conv1D_{}".format(i+mod), kernel_constraint=maxnorm(max_norm), data_format="channels_first"))
+                try:
+                    node_count[2]
+                    layers.append(MaxPool1D(node_count[2], name="max_pooling1D_{}".format(i+mod), data_format="channels_first"))    
+                    layer_tracker += 2
+                except IndexError:
+                    layer_tracker += 1
+            else:
+                layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
+                layer_tracker += 1
+            layers.append(Dropout(drop_rate))
+            layers.append(BatchNormalization())
+            layer_tracker += 2
+            
+        r = Reshape((1, params["input_points"][0]))
+        outs = []    
+        for x in inputs:
+            x = r(x)
+            for layer in layers[:merge_layer]:
+                x = layer(x)
+            outs.append(x)
+                
+        try:
+            activation = params["output_activation"]
+        except KeyError:
+            pass
+        if len(outs) > 1:
+            x = concatenate(outs, axis=1)
+        else:
+            x = outs[0]
+        
+        for layer in layers[merge_layer:]:
+            x = layer(x)
+        
+        outputs = Dense(params["output_categories"], activation=activation, name="output")(x)
+        model = Model(inputs=inputs, outputs=outputs)
+        
+        optimizer = params["optimizer"]
+        loss = params["loss"]
+        
+        model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+        return model
+   
+def Frank_recompile(model, params):
+    optimizer = params["optimizer"]
+    loss = params["loss"]
+    model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+    return model
+
+def Grant(params=None):
+    """
+    Params is a dictionary with key corresponding to values:
+    input_points                  -tuple      -first index is points in a projection, second is the number of projections
+    node_per_layer                -iter       -A list of the number of nodes in each dense layer, 0 indicates the concatenation layer
+    dropout_rate                  -float      -The frequency for the dropout layers
+    max_norm                      -float      -The Max Norm for the dense layers
+    layer_activation              -string     -The type of actication to use in the layers
+    output_activation             -string     -The type of activation to use in the final layer
+    optimizer                     -string     -The optimizer to use for training
+    loss                          -string     -The loss function to use when training
+    """
+    if params is None:
+        return "Grant"
+    else:
+        inputs = []
+        for n in range(params["input_points"][1]):
+            i = Input(shape=(params["input_points"][0],), name="input_{}".format(n+1))
+            inputs.append(i)
+        
+        drop_rate = params["dropout_rate"]
+        max_norm = params["max_norm"]
+        activation = params["layer_activation"]
+        
+        layers = []
+        mod = 1
+        merge_layer = 0
+        layer_tracker = 0
+        for i,node_count in enumerate(params["node_per_layer"]):
+            if node_count == 0:
+                merge_layer = layer_tracker
+                mod = 0
+                continue
+            if node_count == -1:
+                layers.append(Reshape((params["input_points"][0], 1)))
+                layer_tracker += 1
+                continue
+            if type(node_count) is tuple:
+                layers.append(Conv1D(node_count[0], node_count[1], activation=activation, name="conv1D_{}".format(i+mod), kernel_constraint=maxnorm(max_norm), padding="same"))
+                try:
+                    node_count[2]
+                    layers.append(MaxPool1D(node_count[2], name="max_pooling1D_{}".format(i+mod)))    
+                    layer_tracker += 2
+                except IndexError:
+                    layer_tracker += 1
+            else:
+                layers.append(Dense(node_count, activation=activation, name="dense_{}".format(i+mod), kernel_constraint=maxnorm(max_norm)))
+                layer_tracker += 1
+            layers.append(Dropout(drop_rate))
+            layers.append(BatchNormalization())
+            layer_tracker += 2
+        outs = []    
+        for x in inputs:
+            for layer in layers[:merge_layer]:
+                x = layer(x)
+            outs.append(x)
+                
+        try:
+            activation = params["output_activation"]
+        except KeyError:
+            pass
+        if len(outs) > 1:
+            x = concatenate(outs, axis=-1)
+        else:
+            x = outs[0]
+        
+        for layer in layers[merge_layer:]:
+            x = layer(x)
+        
+        x = Flatten()(x)
+        
+        outputs = Dense(params["output_categories"], activation=activation, name="output")(x)
+        model = Model(inputs=inputs, outputs=outputs)
+        
+        optimizer = params["optimizer"]
+        loss = params["loss"]
+        
+        model.compile(optimizer=optimizer, loss=loss, metrics=["accuracy"])
+        return model
+
 def Adam_default_params():
     return {"model":Adam,
             "input_points":(32,2),

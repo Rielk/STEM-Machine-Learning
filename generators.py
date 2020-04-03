@@ -131,6 +131,10 @@ def data_gen(params):
         h_range = params["h_range"]
         h_r = params["h_r"]
         sig_hr = params["sig_hr"]
+        try:
+            dummy_out = params["dummy_out"]
+        except KeyError:
+            dummy_out = False
         use_holes = True
     except KeyError:
         use_holes = False
@@ -152,6 +156,10 @@ def data_gen(params):
             s_n = params["s_n"]
         except KeyError:
             s_n = angle_count
+        try:
+            ignore_spiral_labels = params["ignore_spiral_labels"]
+        except KeyError:
+            ignore_spiral_labels = False
         s_density = params["s_density"]
         sig_sd = params["sig_sd"]
         s_s = params["s_s"]
@@ -244,7 +252,7 @@ def data_gen(params):
             mi = np.min(projections[i,j])
             if mi < minimum:
                 minimum = mi
-    projections -= minimum
+    projections -= mi
     
     maximum = -np.inf
     for i in range(projections.shape[0]):
@@ -260,10 +268,16 @@ def data_gen(params):
     if use_holes and use_spirals:
         #Generate list for holes or not, 1 for holes, and 0 for solids
         set_size = shape_count_a+shape_count_c+shape_count_n
-        hole_labels = keras.utils.to_categorical(
-                np.array([[1] if x < set_size*shape_count_h else [0] 
-                            for x in range(set_size*(shape_count_h+shape_count_s))]),
-                            num_classes=2)
+        if dummy_out:
+            hole_labels = keras.utils.to_categorical(
+                    np.array([[1] if x < set_size*shape_count_h else [0] 
+                                for x in range(set_size*(shape_count_h+shape_count_s))]),
+                                num_classes=3)
+        else:
+            hole_labels = keras.utils.to_categorical(
+                    np.array([[1] if x < set_size*shape_count_h else [0] 
+                                for x in range(set_size*(shape_count_h+shape_count_s))]),
+                                num_classes=2)
     
         #Generate list for spirals or not, 1 for clockwise, and 0 for anticlockwise and 2 no spiral
         base_array1 = np.array([[1] if x < shape_count_c*shape_count_h else
@@ -278,15 +292,24 @@ def data_gen(params):
         else:
             spiral_labels = keras.utils.to_categorical(base_array,num_classes=3)
         
+        if ignore_spiral_labels:
+            spiral_labels = np.array([[0.,0.] for _ in spiral_labels])
+        
         #Join lists into one list for return
         labels = [hole_labels, spiral_labels]
    
     elif use_holes:
-        #Produce the target, 1 for holes, and 0 for solids
-        labels = keras.utils.to_categorical(
-                np.array([[1] if x < shape_count_h else [0] 
-                            for x in range(shape_count_h+shape_count_s)]),
-                            num_classes=2)
+        if dummy_out:
+            labels = keras.utils.to_categorical(
+                    np.array([[1] if x < shape_count_h else [0] 
+                                for x in range(shape_count_h+shape_count_s)]),
+                                num_classes=3)
+        else:
+            #Produce the target, 1 for holes, and 0 for solids
+            labels = keras.utils.to_categorical(
+                    np.array([[1] if x < shape_count_h else [0] 
+                                for x in range(shape_count_h+shape_count_s)]),
+                                num_classes=2)
     elif use_spirals:
         #Produce the target, 1 for clockwise, and 0 for anticlockwise and 2 no spiral
         base_array = np.array([[1] if x < shape_count_c else

@@ -91,7 +91,7 @@ class Shape():
             hole.plot(ax, color)
         for spiral in self.spirals:
             spiral.plot(ax, color)
-        ax.set_aspect('equal', 'box')
+        ax.set_aspect('equal', 'datalim')
 #        r = self._r
 #        ax.set_xlim(-1.1*r,1.1*r)
 #        ax.set_ylim(-1.1*r,1.2*r)

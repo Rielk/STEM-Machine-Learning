@@ -4,7 +4,7 @@ Created on Thu Jan 16 00:32:55 2020
 
 @author: William
 """
-from models import Eliot
+from models import Brian
 from generators import data_gen
 import matplotlib.pyplot as plt
 from runner import run
@@ -50,7 +50,7 @@ v_params = data_params.copy()
 v_params["data_count_c"] = 10000
 v_params["data_count_a"] = 10000
 
-train_params = {"model":Eliot,
+train_params = {"model":Brian,
                 "epochs":200,
                 "verification":True,
                 "patience":40,
@@ -59,13 +59,13 @@ train_params = {"model":Eliot,
 
 #Make the model
 net_structure = [64 for _ in range(4)]
-net_structure += [(64,4,1) for _ in range(4)]
+net_structure += [(64,4) for _ in range(4)]
 net_structure += [0]
 net_structure += [64 for _ in range(2)]
 net_structure += [32 for _ in range(4)]
 net_structure += [16 for _ in range(4)]
-net_structure += [0]
-model_params = {"model":Eliot,
+#net_structure += [0]
+model_params = {"model":Brian,
             "input_points":(64,2),
             "output_categories":2,
             "node_per_layer":net_structure,
@@ -86,13 +86,13 @@ else:
     raise KeyboardInterrupt("Too many attempts")
 
 for n2 in range(3):
-    data_params["data_count_h"] = 15000
-    data_params["data_count_s"] = 15000
+    data_params["data_count_h"] = 30000
+    data_params["data_count_s"] = 30000
     del data_params["data_count_c"]
     del data_params["data_count_a"]
     
-    v_params["data_count_h"] = 5000
-    v_params["data_count_s"] = 5000
+    v_params["data_count_h"] = 10000
+    v_params["data_count_s"] = 10000
     del v_params["data_count_c"]
     del v_params["data_count_a"]
     
