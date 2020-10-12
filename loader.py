@@ -10,10 +10,10 @@ plt.close("all")
 
 data_saves = Save_Manager(r"E:\Users\William\Documents - no sync\Project\Saves")
 #model_saves = Save_Manager(r"E:\Users\William\Documents - no sync\Project\Incorrect Normalisation\0_models")
-train_saves = Save_Manager(r"E:\Users\William\Documents - no sync\Project\Saves\44_models\0_model")
-data, labels, _ = data_saves.load_data(data_saves.dictionary["data"][44])
-shapes, _ = data_saves.load_shapes(data_saves.dictionary["shapes"][44])
-model, history, _ = train_saves.load_trained(train_saves.dictionary["train"][0], n=0)
+train_saves = Save_Manager(r"E:\Users\William\Documents - no sync\Project\Saves\0_models\5_model")
+data, labels, _ = data_saves.load_data(data_saves.dictionary["data"][0])
+shapes, _ = data_saves.load_shapes(data_saves.dictionary["shapes"][0])
+model, history, _ = train_saves.load_trained(train_saves.dictionary["train"][0], n=3)
 
 plt.figure()
 try:
